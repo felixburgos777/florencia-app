@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#15161b" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Florencia" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon.svg" />
+<title>Florencia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg:         #15161b;
+    --surface:    #1c1e25;
+    --surface-2:  #242631;
+    --border:     rgba(255,255,255,0.07);
+    --border-soft:rgba(255,255,255,0.04);
+    --orange:     #f4793c;
+    --orange-soft:rgba(244,121,60,0.16);
+    --text:       #f5f4f2;
+    --text-muted: rgba(245,244,242,0.55);
+    --text-dim:   rgba(245,244,242,0.30);
+    --green:      #4ade80;
+    --radius-sm:  10px;
+    --radius-md:  16px;
+    --radius-lg:  24px;
+    --ease:       cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{font-size:16px;-webkit-tap-highlight-color:transparent;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'Inter',sans-serif; line-height:1.45;
+    max-width:560px; margin:0 auto; min-height:100vh;
+    overflow-x:hidden; position:relative;
+  }
+  img{display:block;width:100%;height:100%;object-fit:cover;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;border:none;background:none;color:inherit;cursor:pointer;}
+
+  /* ─── APP SHELL ──────────────────────────────────────────── */
+  .screen{
+    display:none;
+    padding-bottom:calc(92px + env(safe-area-inset-bottom));
+    min-height:100vh;
+    animation:screenIn 260ms var(--ease);
+  }
+  .screen.active{display:block;}
+  @keyframes screenIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:calc(1.1rem + env(safe-area-inset-top)) 1.3rem 1rem;
+  }
+  .topbar-greet{ display:flex; align-items:center; gap:0.7rem; }
+  .avatar{
+    width:42px; height:42px; border-radius:50%;
+    background:linear-gradient(135deg,var(--orange),#c2531c);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:0.95rem; color:#1a0d05; flex-shrink:0;
+  }
+  .greet-hi{ font-size:0.72rem; color:var(--text-dim); }
+  .greet-name{ font-size:0.96rem; font-weight:700; }
+  .topbar-title{ font-size:1.05rem; font-weight:800; letter-spacing:-0.01em; color:var(--orange); }
+  .icon-btn{
+    width:38px; height:38px; border-radius:50%;
+    background:var(--surface); border:1px solid var(--border-soft);
+    display:flex; align-items:center; justify-content:center; font-size:1rem;
+  }
+
+  .page-head{ padding:0.4rem 1.3rem 1.1rem; }
+  .page-title{ font-size:1.7rem; font-weight:800; letter-spacing:-0.01em; }
+  .page-sub{ font-size:0.85rem; color:var(--text-muted); margin-top:0.2rem; }
+
+  /* ─── HOME HERO ──────────────────────────────────────────── */
+  .hero-card{
+    margin:0 1.3rem 1.2rem; position:relative; height:230px; border-radius:var(--radius-lg);
+    overflow:hidden; border:1px solid var(--border-soft);
+  }
+  .teresa-badge{
+    position:absolute; right:14px; bottom:14px; z-index:2;
+    width:78px; height:78px; object-fit:cover;
+    border-radius:14px; border:2px solid rgba(255,255,255,0.85);
+    box-shadow:0 6px 16px rgba(0,0,0,0.5);
+    transform:rotate(-8deg);
+  }
+  .hero-card img{ filter:saturate(0.95) brightness(0.82); }
+  .hero-shade{
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(21,22,27,0.05) 0%, rgba(21,22,27,0.25) 45%, rgba(21,22,27,0.92) 100%);
+  }
+  .hero-body{ position:absolute; left:0; right:0; bottom:0; z-index:2; padding:1.2rem 1.3rem; }
+  .hero-eyebrow{ font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--orange); margin-bottom:0.3rem; }
+  .hero-title{ font-size:1.5rem; font-weight:800; }
+  .hero-meta{ display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; font-size:0.78rem; color:var(--text-muted); }
+  .star{ color:var(--orange); }
+  .hero-pill-btn{
+    position:absolute; top:1rem; right:1rem; z-index:2;
+    background:rgba(21,22,27,0.6); backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,0.12); border-radius:100px;
+    padding:0.4rem 0.85rem; font-size:0.7rem; font-weight:600;
+    display:flex; align-items:center; gap:0.35rem; color:var(--text);
+  }
+
+  /* ─── STAT ROW ───────────────────────────────────────────── */
+  .stat-row{ display:flex; gap:0.7rem; padding:0 1.3rem 1.4rem; }
+  .stat-card{
+    flex:1; background:var(--surface); border:1px solid var(--border-soft);
+    border-radius:var(--radius-md); padding:0.85rem 0.6rem; text-align:center;
+  }
+  .stat-num{ font-size:1.2rem; font-weight:800; color:var(--orange); }
+  .stat-label{ font-size:0.65rem; color:var(--text-muted); margin-top:0.15rem; }
+
+  /* ─── QUICK NAV PILLS ────────────────────────────────────── */
+  .quick-row{ display:flex; gap:0.6rem; padding:0 1.3rem 1.4rem; flex-wrap:wrap; }
+  .quick-pill{
+    flex-shrink:0; display:flex; align-items:center; gap:0.5rem;
+    background:var(--surface); border:1px solid var(--border-soft);
+    border-radius:100px; padding:0.55rem 1.1rem 0.55rem 0.55rem;
+  }
+  .quick-pill-icon{
+    width:26px; height:26px; border-radius:50%; background:var(--orange-soft);
+    display:flex; align-items:center; justify-content:center; font-size:0.85rem;
+  }
+  .quick-pill-label{ font-size:0.78rem; font-weight:600; }
+
+  .section-label{ display:flex; align-items:baseline; justify-content:space-between; padding:0 1.3rem 0.8rem; }
+  .section-label h3{ font-size:1.02rem; font-weight:700; }
+  .section-label span{ font-size:0.74rem; color:var(--orange); font-weight:600; }
+
+  /* ─── NEXT EVENT CARD (home) ─────────────────────────────── */
+  .next-card{
+    margin:0 1.3rem 1.8rem; display:flex; align-items:center; gap:0.9rem;
+    background:var(--surface); border:1px solid var(--border-soft);
+    border-radius:var(--radius-md); padding:0.9rem;
+  }
+  .next-emoji{
+    width:54px; height:54px; border-radius:14px; background:var(--orange-soft);
+    display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;
+  }
+  .next-info{ flex:1; min-width:0; }
+  .next-day{ font-size:0.68rem; font-weight:700; color:var(--orange); letter-spacing:0.04em; text-transform:uppercase; }
+  .next-name{ font-size:0.92rem; font-weight:700; margin-top:0.15rem; }
+  .next-time{ font-size:0.76rem; color:var(--text-muted); margin-top:0.1rem; }
+  .next-arrow{ color:var(--text-dim); font-size:1.1rem; flex-shrink:0; }
+
+  /* ─── FEATURED HSCROLL (home) ────────────────────────────── */
+  .hscroll{ display:flex; gap:0.9rem; padding:0 1.3rem 1.4rem; flex-wrap:wrap; }
+  .feat-card{
+    flex-shrink:0; width:165px; border-radius:var(--radius-md); overflow:hidden;
+    background:var(--surface); border:1px solid var(--border-soft); cursor:pointer;
+  }
+  .feat-img{ height:115px; position:relative; }
+  .feat-img img{ filter:saturate(0.9) brightness(0.88); }
+  .feat-rating{
+    position:absolute; top:0.5rem; right:0.5rem; z-index:2;
+    background:rgba(21,22,27,0.7); backdrop-filter:blur(6px);
+    border-radius:100px; padding:0.18rem 0.5rem; font-size:0.66rem; font-weight:700;
+    display:flex; align-items:center; gap:3px;
+  }
+  .feat-body{ padding:0.7rem 0.8rem 0.85rem; }
+  .feat-name{ font-size:0.84rem; font-weight:700; line-height:1.25; }
+  .feat-zone{ font-size:0.7rem; color:var(--text-muted); margin-top:0.25rem; }
+
+  /* ─── FILTER CHIPS ───────────────────────────────────────── */
+  .chip-row{ display:flex; gap:0.5rem; padding:0 1.3rem 1.1rem; flex-wrap:wrap; }
+  .chip{
+    flex-shrink:0; font-size:0.76rem; font-weight:600; padding:0.45rem 1rem;
+    border-radius:100px; border:1px solid var(--border); background:var(--surface);
+    color:var(--text-muted); white-space:nowrap;
+  }
+  .chip.active{ background:var(--orange); border-color:var(--orange); color:#1a0d05; }
+
+  /* ─── LIST CARD (visitas / comer) ────────────────────────── */
+  .list{ display:flex; flex-direction:column; gap:0.8rem; padding:0 1.3rem 1rem; }
+  .item-card{
+    display:flex; gap:0.9rem; align-items:center;
+    background:var(--surface); border:1px solid var(--border-soft);
+    border-radius:var(--radius-md); padding:0.7rem; cursor:pointer;
+  }
+  .item-thumb{ width:78px; height:78px; border-radius:12px; overflow:hidden; flex-shrink:0; }
+  .item-thumb img{ filter:saturate(0.9) brightness(0.88); }
+  .item-info{ flex:1; min-width:0; }
+  .item-top{ display:flex; align-items:center; justify-content:space-between; gap:0.5rem; }
+  .item-name{ font-size:0.92rem; font-weight:700; line-height:1.25; }
+  .item-rating{ display:flex; align-items:center; gap:3px; font-size:0.72rem; font-weight:700; color:var(--orange); flex-shrink:0; }
+  .item-desc{ font-size:0.76rem; color:var(--text-muted); margin-top:0.3rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .item-meta{ display:flex; align-items:center; gap:0.4rem; margin-top:0.45rem; }
+  .item-tag{ font-size:0.65rem; font-weight:600; color:var(--text-dim); background:var(--surface-2); padding:0.15rem 0.5rem; border-radius:100px; }
+  .item-free{ font-size:0.65rem; font-weight:700; color:var(--green); background:rgba(74,222,128,0.12); padding:0.15rem 0.5rem; border-radius:100px; }
+
+  /* ─── ITINERARIO ─────────────────────────────────────────── */
+  .day-row{ display:flex; gap:0.6rem; padding:0 1.3rem 1.3rem; flex-wrap:wrap; }
+  .day-row::-webkit-scrollbar{ display:none; }
+  .day-pill{
+    flex-shrink:0; min-width:78px; text-align:center; padding:0.65rem 0.5rem;
+    border-radius:var(--radius-md); border:1px solid var(--border); background:var(--surface);
+  }
+  .day-pill.active{ background:var(--orange); border-color:var(--orange); }
+  .day-pill.active .day-pill-num, .day-pill.active .day-pill-dow{ color:#1a0d05; }
+  .day-pill-dow{ font-size:0.62rem; font-weight:600; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.05em; }
+  .day-pill-num{ font-size:1.15rem; font-weight:800; margin-top:0.15rem; }
+
+  .timeline{ padding:0 1.3rem; display:flex; flex-direction:column; }
+  .tl-item{ display:flex; gap:1rem; cursor:pointer; }
+  .tl-rail{ display:flex; flex-direction:column; align-items:center; width:44px; flex-shrink:0; }
+  .tl-dot{
+    width:44px; height:44px; border-radius:14px; background:var(--orange-soft);
+    display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;
+  }
+  .tl-line{ width:2px; flex:1; background:var(--border); margin:4px 0; }
+  .tl-item:last-child .tl-line{ display:none; }
+  .tl-body{ flex:1; padding-bottom:1.6rem; min-width:0; }
+  .tl-time{ font-size:0.68rem; font-weight:700; color:var(--orange); letter-spacing:0.04em; text-transform:uppercase; }
+  .tl-name{ font-size:0.92rem; font-weight:700; margin-top:0.2rem; }
+  .tl-empty{ font-size:0.82rem; color:var(--text-dim); font-style:italic; padding:1rem 0; }
+
+  /* ─── BOTTOM NAV ─────────────────────────────────────────── */
+  .bottom-nav{
+    position:fixed; left:0; right:0; bottom:0; z-index:50;
+    max-width:560px; margin:0 auto;
+    background:rgba(28,30,37,0.88); backdrop-filter:blur(22px) saturate(160%);
+    border-top:1px solid var(--border-soft);
+    padding:0.55rem 0.4rem calc(0.55rem + env(safe-area-inset-bottom));
+    display:flex; justify-content:space-between;
+  }
+  .nav-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:0.3rem 0; color:var(--text-dim); font-size:0.58rem; font-weight:600;
+  }
+  .nav-icon-wrap{
+    width:34px; height:28px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.05rem; transition:background 200ms var(--ease);
+  }
+  .nav-item.active{ color:var(--orange); }
+  .nav-item.active .nav-icon-wrap{ background:var(--orange-soft); }
+
+  /* ─── TIENDA EMOJI THUMB ──────────────────────────────────── */
+  .tshop-emoji-thumb{
+    width:78px; height:78px; border-radius:12px; flex-shrink:0;
+    background:var(--surface-2); border:1px solid var(--border-soft);
+    display:flex; align-items:center; justify-content:center; font-size:2rem;
+  }
+
+  /* ─── INFO SCREEN ─────────────────────────────────────────── */
+  .info-hero{
+    margin:0 1.3rem 1.4rem; position:relative; height:160px;
+    border-radius:20px; overflow:hidden; border:1px solid var(--border-soft);
+  }
+  .info-hero img{ width:100%; height:100%; object-fit:cover; filter:brightness(0.7) saturate(0.9); }
+  .info-hero-body{
+    position:absolute; inset:0; display:flex; align-items:flex-end;
+    padding:1.2rem; background:linear-gradient(180deg,transparent 30%,rgba(21,22,27,0.88) 100%);
+  }
+  .info-hero-text{ font-size:1.1rem; font-weight:800; line-height:1.2; }
+  .info-hero-sub{ font-size:0.74rem; color:rgba(245,244,242,0.65); margin-top:0.2rem; }
+
+  .info-section{
+    border-bottom:1px solid var(--border-soft);
+    overflow:hidden;
+  }
+  .info-section-header{
+    display:flex; align-items:center; gap:0.9rem;
+    padding:1rem 1.3rem; cursor:pointer;
+    background:transparent; width:100%; text-align:left;
+    border:none; color:var(--text); font-family:inherit;
+    -webkit-tap-highlight-color:transparent;
+    transition:background 180ms var(--ease);
+  }
+  .info-section-header:active{ background:var(--surface-2); }
+  .info-section-icon{
+    width:40px; height:40px; border-radius:13px;
+    background:var(--orange-soft);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.1rem; flex-shrink:0;
+    transition:transform 200ms var(--ease);
+  }
+  .info-section.open .info-section-icon{ transform:scale(1.06); }
+  .info-section-label{ flex:1; font-size:0.92rem; font-weight:700; }
+  .info-section-count{ font-size:0.68rem; color:var(--text-dim); font-weight:500; }
+  .info-section-chevron{
+    color:var(--text-dim); font-size:0.8rem;
+    transition:transform 280ms var(--ease);
+  }
+  .info-section.open .info-section-chevron{ transform:rotate(90deg); color:var(--orange); }
+
+  .info-section-body{
+    max-height:0; overflow:hidden;
+    transition:max-height 380ms cubic-bezier(0.16,1,0.3,1), opacity 250ms var(--ease);
+    opacity:0; padding:0 1.3rem;
+  }
+  .info-section.open .info-section-body{
+    max-height:3000px; opacity:1; padding-bottom:1.2rem;
+  }
+
+  .info-row{
+    background:var(--surface-2); border-radius:13px;
+    padding:0.8rem 1rem; margin-bottom:0.55rem;
+    border:1px solid var(--border-soft);
+    position:relative; overflow:hidden;
+  }
+  .info-row::before{
+    content:''; position:absolute; left:0; top:0; bottom:0;
+    width:3px; background:var(--orange); opacity:0;
+    transition:opacity 200ms var(--ease);
+    border-radius:0 2px 2px 0;
+  }
+  .info-row.accent::before{ opacity:1; }
+  .info-row-label{
+    font-size:0.62rem; font-weight:700; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--text-dim);
+    margin-bottom:0.35rem; display:block;
+  }
+  .info-row-val{ font-size:0.84rem; color:var(--text); line-height:1.55; }
+  .info-row-val a{ color:var(--orange); text-decoration:none; }
+  .info-row-val b{ color:var(--text); font-weight:700; }
+  .info-row-sub{ font-size:0.76rem; color:var(--text-muted); margin-top:0.3rem; line-height:1.5; }
+  .info-row-badge{
+    display:inline-block; font-size:0.62rem; font-weight:700;
+    letter-spacing:0.06em; padding:0.15rem 0.5rem; border-radius:100px;
+    margin-top:0.35rem; margin-right:0.3rem;
+  }
+  .badge-green{ background:rgba(74,222,128,0.15); color:#4ade80; }
+  .badge-orange{ background:var(--orange-soft); color:var(--orange); }
+  .badge-red{ background:rgba(248,113,113,0.15); color:#f87171; }
+
+  .info-cta-link{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0.9rem 1rem; border-radius:13px;
+    background:var(--orange-soft); border:1px solid rgba(244,121,60,0.2);
+    margin-bottom:0.6rem; text-decoration:none; color:var(--text);
+    -webkit-tap-highlight-color:transparent;
+    transition:opacity 160ms;
+  }
+  .info-cta-link:active{ opacity:0.75; }
+  .info-cta-inner{ flex:1; }
+  .info-cta-text{ font-size:0.86rem; font-weight:700; }
+  .info-cta-sub{ font-size:0.71rem; color:rgba(244,121,60,0.75); margin-top:0.15rem; }
+  .info-cta-arrow{ color:var(--orange); font-size:1rem; }
+
+  /* copitas */
+  .info-copita-card{
+    background:var(--surface-2); border-radius:13px;
+    padding:0.9rem 1rem; margin-bottom:0.55rem;
+    border:1px solid var(--border-soft);
+    display:flex; gap:0.75rem; align-items:flex-start;
+  }
+  .info-copita-badge{
+    width:28px; height:28px; border-radius:8px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:0.85rem;
+    margin-top:0.1rem;
+  }
+  .info-copita-content{ flex:1; min-width:0; }
+  .info-copita-name{ font-size:0.88rem; font-weight:700; color:var(--text); }
+  .info-copita-level{ font-size:0.64rem; font-weight:600; letter-spacing:0.05em; color:var(--text-dim); margin-bottom:0.25rem; }
+  .info-copita-desc{ font-size:0.75rem; color:var(--text-muted); line-height:1.5; margin-top:0.25rem; }
+  .info-copita-price{ font-size:0.72rem; color:var(--orange); margin-top:0.35rem; font-weight:600; }
+
+  /* ─── BACK BUTTON INLINE ─────────────────────────────────── */
+  .back-btn-inline{
+    display:flex; align-items:center; gap:0.3rem;
+    font-size:0.75rem; font-weight:600; color:var(--text-muted);
+    background:none; border:none; cursor:pointer; font-family:inherit;
+    padding:0; -webkit-tap-highlight-color:transparent;
+    transition:color 160ms var(--ease);
+  }
+  .back-btn-inline:active{ color:var(--orange); }
+
+  /* ─── PREMIUM MICRO-INTERACTIONS ──────────────────────────── */
+  .item-card{ transition:transform 180ms var(--ease), box-shadow 180ms var(--ease); }
+  .item-card:active{ transform:scale(0.97); }
+  .feat-card{ transition:transform 180ms var(--ease); }
+  .feat-card:active{ transform:scale(0.95); }
+  .sheet{ scrollbar-width:thin; scrollbar-color:var(--border-soft) transparent; }
+  .nav-item{ transition:color 160ms var(--ease); }
+
+  /* tienda card with real image */
+  .tcard-real-thumb{
+    width:78px; height:78px; border-radius:12px;
+    overflow:hidden; flex-shrink:0; background:var(--surface-2);
+  }
+  .tcard-real-thumb img{
+    width:100%; height:100%; object-fit:cover;
+    filter:saturate(0.92) brightness(0.9);
+    transition:filter 200ms var(--ease);
+  }
+  .item-card:active .tcard-real-thumb img{ filter:saturate(1) brightness(0.95); }
+
+  /* ─── DETAIL SHEET ───────────────────────────────────────── */
+  .sheet-overlay{
+    position:fixed; inset:0; z-index:200;
+    background:rgba(10,10,12,0.6);
+    opacity:0; pointer-events:none; transition:opacity 250ms var(--ease);
+    display:flex; justify-content:center;
+  }
+  .sheet-overlay.open{ opacity:1; pointer-events:all; }
+  .sheet{
+    width:100%; max-width:560px; align-self:flex-end;
+    background:var(--surface); border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+    max-height:92vh; overflow-y:auto;
+    transform:translateY(100%); transition:transform 340ms cubic-bezier(0.16,1,0.3,1);
+    box-shadow:0 -12px 48px rgba(0,0,0,0.5);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .sheet-overlay.open .sheet{ transform:translateY(0); }
+  .sheet-hero{ position:relative; height:200px; }
+  .sheet-hero img{ filter:saturate(0.9) brightness(0.85); }
+  .sheet-hero-shade{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(21,22,27,0) 30%, rgba(28,30,37,1) 100%); }
+  .sheet-close{
+    position:absolute; top:0.9rem; right:0.9rem; z-index:2;
+    width:34px; height:34px; border-radius:50%;
+    background:rgba(21,22,27,0.65); backdrop-filter:blur(8px);
+    display:flex; align-items:center; justify-content:center; font-size:1rem; color:var(--text);
+  }
+  .sheet-emoji-head{ padding:1.6rem 1.4rem 0; font-size:2.2rem; }
+  .sheet-tag{ display:inline-block; font-size:0.65rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--orange); background:var(--orange-soft); padding:0.2rem 0.6rem; border-radius:100px; margin:0 1.4rem; }
+  .sheet-title{ font-size:1.35rem; font-weight:800; padding:0.6rem 1.4rem 0; }
+  .sheet-rating{ display:flex; align-items:center; gap:0.4rem; padding:0.4rem 1.4rem 0; font-size:0.8rem; color:var(--text-muted); }
+  .sheet-desc{ font-size:0.86rem; color:var(--text-muted); line-height:1.6; padding:1rem 1.4rem 0; }
+  .sheet-meta{ display:flex; flex-direction:column; gap:0.6rem; padding:1.1rem 1.4rem 1.4rem; }
+  .sheet-meta-row{ display:flex; gap:0.8rem; background:var(--surface-2); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:0.7rem 0.9rem; }
+  .sheet-meta-label{ font-size:0.64rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-dim); min-width:78px; flex-shrink:0; }
+  .sheet-meta-val{ font-size:0.82rem; color:var(--text); }
+  .sheet-meta-val a{ color:var(--orange); text-decoration:underline; }
+  .sheet-cta{
+    display:block; margin:0 1.4rem 1.6rem; text-align:center;
+    background:var(--orange); color:#1a0d05; font-weight:700; font-size:0.86rem;
+    padding:0.85rem; border-radius:var(--radius-sm);
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════ HOME ════════════════════ -->
+<section class="screen active" id="screen-home">
+  <div class="topbar">
+    <div class="topbar-title">Viaje 60 cumpleaños Teresa Burgos</div>
+  </div>
+
+  <div class="hero-card">
+    <img src="img/Florence_página principal.jpeg" alt="Florencia" />
+    <div class="hero-shade"></div>
+    <a class="hero-pill-btn" href="https://www.google.com/maps/d/edit?hl=es&mid=1w2DSRJ_8O3dkzTXroOhplFmfP0ZX1xs&ll=43.769619218410014%2C11.248441970540192&z=16" target="_blank"><img src="img/icons/pin.png" alt="" style="width:16px;height:16px;object-fit:contain;"> Florencia Maps</a>
+    <img class="teresa-badge" src="img/Teresa.png" alt="Teresa · 60 cumpleaños" />
+    <div class="hero-body">
+      <div class="hero-title">Florencia</div>
+      <div class="hero-meta"><span class="star">★★★★★</span> La cuna del Renacimiento</div>
+    </div>
+  </div>
+
+  <div class="quick-row">
+    <button class="quick-pill" onclick="goTab('info')"><span class="quick-pill-icon"><img src="img/icons/info.png" alt="" style="width:18px;height:18px;object-fit:contain;"></span><span class="quick-pill-label">Info</span></button>
+    <button class="quick-pill" onclick="goTab('itinerario')"><span class="quick-pill-icon"><img src="img/icons/itinerario.png" alt="" style="width:18px;height:18px;object-fit:contain;"></span><span class="quick-pill-label">Ruta</span></button>
+    <button class="quick-pill" onclick="goTab('visitas')"><span class="quick-pill-icon">🏛</span><span class="quick-pill-label">Visitas</span></button>
+    <button class="quick-pill" onclick="goTab('comer')"><span class="quick-pill-icon"><img src="img/icons/comer.png" alt="" style="width:18px;height:18px;object-fit:contain;"></span><span class="quick-pill-label">Comer</span></button>
+    <button class="quick-pill" onclick="goTab('tiendas')"><span class="quick-pill-icon">🛍️</span><span class="quick-pill-label">Shops</span></button>
+  </div>
+
+  <div class="section-label"><h3 style="color:var(--orange);">Tú opinión también cuenta</h3></div>
+  <div id="home-comments-preview" style="display:flex; flex-direction:column; gap:0.6rem; padding:0 1.3rem 1.8rem; cursor:pointer;" onclick="openComentariosSheet()"></div>
+
+  <div class="section-label"><h3>Imprescindibles</h3><span onclick="goTab('visitas')">Ver todo</span></div>
+  <div class="hscroll" id="home-featured"></div>
+</section>
+
+<!-- ════════════════════ VISITAS ════════════════════ -->
+<section class="screen" id="screen-visitas">
+  <div class="topbar"><div></div></div>
+  <div class="page-head">
+    <div class="page-title">Visitas</div>
+    <div class="page-sub">15 lugares imprescindibles de Florencia</div>
+  </div>
+  <div class="chip-row" id="visitas-chips"></div>
+  <div class="list" id="visitas-list"></div>
+</section>
+
+<!-- ════════════════════ COMER ════════════════════ -->
+<section class="screen" id="screen-comer">
+  <div class="topbar"><div></div></div>
+  <div class="page-head">
+    <div class="page-title">Comer & beber</div>
+    <div class="page-sub">10 restaurantes · 6 bares y copas</div>
+  </div>
+  <div class="chip-row" id="comer-chips"></div>
+  <div class="list" id="comer-list"></div>
+</section>
+
+<!-- ════════════════════ INFO ════════════════════ -->
+<section class="screen" id="screen-info">
+  <div class="topbar">
+    <button class="back-btn-inline" onclick="goTab('home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Inicio
+    </button>
+    <div class="topbar-title">Info</div>
+    <div style="width:60px"></div>
+  </div>
+  <div class="page-head" style="padding-top:0.6rem">
+    <div class="page-title">Información</div>
+    <div class="page-sub">Todo lo que necesitas saber · Florencia Julio 2026</div>
+  </div>
+
+  <!-- Hero -->
+  <div class="info-hero">
+    <img src="img/Florence_página principal.jpeg" alt="Florencia" />
+    <div class="info-hero-body">
+      <div>
+        <div class="info-hero-text">Florencia · La cuna del Renacimiento</div>
+        <div class="info-hero-sub">9 – 12 Julio 2026 · Viaje 60 cumpleaños Teresa</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Logística ── -->
+  <div class="info-section" id="info-logistica">
+    <button class="info-section-header" onclick="toggleInfo('logistica')">
+      <span class="info-section-icon"><img src="img/icons/itinerario.png" alt="" style="width:22px;height:22px;object-fit:contain;"></span>
+      <span class="info-section-label">Logística</span>
+      <span class="info-section-count">3 consejos</span>
+      <span class="info-section-chevron">›</span>
+    </button>
+    <div class="info-section-body">
+      <div class="info-row accent">
+        <span class="info-row-label">Ciudad peatonal</span>
+        <div class="info-row-val">Florencia es un museo al aire libre. No necesitas autobuses ni taxis para moverse por el centro. Prepárate para caminar entre <b>15 y 20 km al día</b>.</div>
+        <div class="info-row-sub">Lleva calzado cómodo de verdad. La ZTL (zona de tráfico limitado) en el centro hace que los coches de alquiler sean una pésima idea — las multas son astronómicas.</div>
+      </div>
+      <div class="info-row">
+        <span class="info-row-label">💧 Agua gratis · Nasoni</span>
+        <div class="info-row-val">No gastes en botellas de plástico. Florencia está llena de <b>fuentes públicas de agua potable</b> llamadas <i>nasoni</i>.</div>
+        <div class="info-row-sub">Lleva tu propia botella y recárgala. El agua es totalmente potable y fría.</div>
+      </div>
+      <div class="info-row" onclick="openIdiomaSheet()" style="cursor:pointer;">
+        <span class="info-row-label"><img src="img/icons/idioma.png" alt="" style="width:13px;height:13px;object-fit:contain;vertical-align:middle;margin-right:4px;"> Idioma · Frases en italiano</span>
+        <div class="info-row-val">El italiano es la lengua oficial. Unas pocas frases marcan la diferencia.</div>
+        <div class="info-row-sub" style="color:var(--orange); font-weight:600; margin-top:0.4rem;">Ver frases útiles →</div>
+      </div>
+      <div class="info-row">
+        <span class="info-row-label">🌡️ Julio en Florencia</span>
+        <div class="info-row-val">Julio es el mes más caluroso. Temperatura media <b>30–35°C</b>, con picos ocasionales de hasta 38°C.</div>
+        <div class="info-row-sub">Visita los museos en las horas centrales del día (12–16h) y reserva los paseos para la mañana temprano o después de las 17h.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Transportes ── -->
+  <div class="info-section" id="info-transportes">
+    <button class="info-section-header" onclick="toggleInfo('transportes')">
+      <span class="info-section-icon"><img src="img/icons/transportes.png" alt="" style="width:22px;height:22px;object-fit:contain;"></span>
+      <span class="info-section-label">Transportes</span>
+      <span class="info-section-count">Taxi · Tranvía</span>
+      <span class="info-section-chevron">›</span>
+    </button>
+    <div class="info-section-body">
+      <div class="info-row accent">
+        <span class="info-row-label"><img src="img/icons/avion.png" alt="" style="width:13px;height:13px;object-fit:contain;vertical-align:middle;margin-right:4px;"> Tranvía aeropuerto → Centro</span>
+        <div class="info-row-val"><b>Línea T2</b> · Aeropuerto Peretola → Santa Maria Novella</div>
+        <div class="info-row-sub">
+          Duración: <b>~20 min</b> · Frecuencia: cada 5–10 min<br>
+          Precio: <b>1,70 €</b> (sube a 2,00 € el 1 de agosto)<br>
+          Parada: «Peretola Aeroporto» justo a la salida de llegadas
+        </div>
+        <span class="info-row-badge badge-green">Tap &amp; Go contactless</span>
+        <span class="info-row-badge badge-orange">App «at bus»</span>
+      </div>
+      <div class="info-row">
+        <span class="info-row-label">💳 Cómo pagar el tranvía</span>
+        <div class="info-row-val">Tres opciones: máquinas automáticas en paradas, contactless directo en el vagón (tarjeta/móvil), o app «at bus».</div>
+        <div class="info-row-sub"><b>Ojo:</b> Si compras en papel, valídalo al subir o multa de 50–100€. Con contactless queda validado automáticamente.</div>
+      </div>
+      <a class="info-cta-link" href="https://www.google.com/maps/dir/Aeropuerto+de+Florencia,+Via+del+Termine,+11,+50127+Firenze/Firenze+Santa+Maria+Novella/@43.7927559,11.1840488,13z" target="_blank">
+        <div class="info-cta-inner">
+          <div class="info-cta-text">Aeropuerto → Santa Maria Novella</div>
+          <div class="info-cta-sub">Ver ruta en Google Maps</div>
+        </div>
+        <span class="info-cta-arrow">→</span>
+      </a>
+      <div class="info-row">
+        <span class="info-row-label">🚕 Taxis</span>
+        <div class="info-row-val">Aeropuerto → Centro: <b>~50 €</b></div>
+        <div class="info-row-sub">
+          • Preguntar siempre si se puede pagar con tarjeta<br>
+          • Pagar siempre con taxímetro<br>
+          • App recomendada: <b>itTaxi</b> — la app oficial de taxis en Italia
+        </div>
+      </div>
+      <a class="info-cta-link" href="https://ittaxi.it/" target="_blank">
+        <div class="info-cta-inner">
+          <div class="info-cta-text">itTaxi · App oficial de taxis</div>
+          <div class="info-cta-sub">Descarga y pide taxi sin sorpresas</div>
+        </div>
+        <span class="info-cta-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── Salud ── -->
+  <div class="info-section" id="info-salud">
+    <button class="info-section-header" onclick="toggleInfo('salud')">
+      <span class="info-section-icon"><img src="img/icons/hospital.png" alt="" style="width:22px;height:22px;object-fit:contain;"></span>
+      <span class="info-section-label">Salud</span>
+      <span class="info-section-count">4 farmacias · 2 hospitales</span>
+      <span class="info-section-chevron">›</span>
+    </button>
+    <div class="info-section-body">
+      <div class="info-row accent">
+        <span class="info-row-label">🏥 Farmacia 24h · Santa Maria Novella</span>
+        <div class="info-row-val">Dentro de la estación Santa Maria Novella</div>
+        <div class="info-row-sub">📞 +39 055 289435</div>
+        <a class="info-cta-link" href="https://www.google.com/maps/place/Farmacia+Comunale+Santa+Maria+Novella+-+Apoteca+Natura/@43.7741512,11.2449204,17z" target="_blank" style="margin-top:0.6rem; margin-bottom:0;">
+          <div class="info-cta-inner"><div class="info-cta-text">Ver en Google Maps</div></div>
+          <span class="info-cta-arrow">→</span>
+        </a>
+      </div>
+      <div class="info-row">
+        <span class="info-row-label">Farmacia Molteni</span>
+        <div class="info-row-val">Via Calzaiuoli, 7R · Entre Duomo y Signoria</div>
+        <div class="info-row-sub">📞 +39 055 289490 · 08:00–22:00h</div>
+        <a class="info-cta-link" href="https://www.google.com/maps/place/Via+dei+Calzaiuoli,+7r,+50123+Firenze+FI,+Italia/@43.7701672,11.2526503,17z" target="_blank" style="margin-top:0.6rem;margin-bottom:0;">
+          <div class="info-cta-inner"><div class="info-cta-text">Ver en Google Maps</div></div>
+          <span class="info-cta-arrow">→</span>
+        </a>
+      </div>
+      <div class="info-row">
+        <span class="info-row-label">Farmacia All'Insegna del Moro</span>
+        <div class="info-row-val">Piazza San Giovanni, 20R · Frente al Duomo</div>
+        <div class="info-row-sub">📞 +39 055 211343 · Guardia 24h</div>
+        <a class="info-cta-link" href="https://www.google.com/maps/search/Farmacia+All+Insegna+del+Moro+Firenze" target="_blank" style="margin-top:0.6rem;margin-bottom:0;">
+          <div class="info-cta-inner"><div class="info-cta-text">Ver en Google Maps</div></div>
+          <span class="info-cta-arrow">→</span>
+        </a>
+      </div>
+      <div class="info-row">
+        <span class="info-row-label">Farmacia Paglicci · Turno de noche</span>
+        <div class="info-row-val">Via della Scala, 61R · Cerca estación SMN</div>
+        <div class="info-row-sub">📞 +39 055 215612 · Noche: 20:00–09:00h</div>
+        <a class="info-cta-link" href="https://www.google.com/maps/search/Farmacia+Paglicci+Via+della+Scala+Firenze" target="_blank" style="margin-top:0.6rem;margin-bottom:0;">
+          <div class="info-cta-inner"><div class="info-cta-text">Ver en Google Maps</div></div>
+          <span class="info-cta-arrow">→</span>
+        </a>
+      </div>
+      <div class="info-row" style="margin-top:0.8rem;">
+        <span class="info-row-label">🚨 Hospital más céntrico</span>
+        <div class="info-row-val"><b>Ospedale Santa Maria Nuova</b></div>
+        <div class="info-row-sub">Piazza Santa Maria Nuova, 1 · A pocos minutos del Duomo<br>📞 +39 055 69381</div>
+        <a class="info-cta-link" href="https://www.google.com/maps/place/Santa+Maria+Nuova+Hospital/@43.7732536,11.2573919,17z" target="_blank" style="margin-top:0.6rem;margin-bottom:0;">
+          <div class="info-cta-inner"><div class="info-cta-text">Ver en Google Maps</div></div>
+          <span class="info-cta-arrow">→</span>
+        </a>
+      </div>
+      <div class="info-row">
+        <span class="info-row-label">Hospital Universitario Careggi</span>
+        <div class="info-row-val"><b>AOU Careggi</b> · Principal hospital de Florencia</div>
+        <div class="info-row-sub">Largo Brambilla, 3<br>📞 +39 055 794111</div>
+        <a class="info-cta-link" href="https://www.google.com/maps/place/Azienda+Ospedaliero-Universitaria+Careggi/@43.8064,11.2527,16z" target="_blank" style="margin-top:0.6rem;margin-bottom:0;">
+          <div class="info-cta-inner"><div class="info-cta-text">Ver en Google Maps</div></div>
+          <span class="info-cta-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Seguridad ── -->
+  <div class="info-section" id="info-seguridad">
+    <button class="info-section-header" onclick="toggleInfo('seguridad')">
+      <span class="info-section-icon"><img src="img/icons/ladron.png" alt="" style="width:22px;height:22px;object-fit:contain;"></span>
+      <span class="info-section-label">Seguridad</span>
+      <span class="info-section-count">Consejos · Comisarías</span>
+      <span class="info-section-chevron">›</span>
+    </button>
+    <div class="info-section-body">
+      <div class="info-row accent">
+        <span class="info-row-label">⚠️ Zonas de riesgo de carteristas</span>
+        <div class="info-row-val">Florencia es segura, pero ojo con los carteristas en zonas concurridas.</div>
+        <div class="info-row-sub">
+          • Estación Santa Maria Novella<br>
+          • Plaza del Duomo y calles cercanas<br>
+          • Ponte Vecchio y Piazza della Signoria<br>
+          • Entradas a Uffizi y Academia<br>
+          • Autobuses muy llenos
+        </div>
+      </div>
+      <div class="info-row">
+        <span class="info-row-label">✅ Recomendaciones</span>
+        <div class="info-row-val">
+          Lleva la cartera en bolsillo delantero o riñonera interior.<br>
+          Mochilas cerradas y delante en zonas con mucha gente.<br>
+          No dejes el móvil en mesas de terraza.<br>
+          Desconfía de quien intente distraerte con pulseras o firmas.
+        </div>
+      </div>
+      <div class="info-row">
+        <span class="info-row-label">🚨 Emergencias · Número único</span>
+        <div class="info-row-val"><b style="font-size:1.3rem; color:var(--orange);">112</b></div>
+        <div class="info-row-sub">Funciona para policía, ambulancia y bomberos</div>
+      </div>
+      <div class="info-row">
+        <span class="info-row-label">Questura di Firenze · Jefatura Provincial</span>
+        <div class="info-row-val">Via Zara, 2 · 📞 +39 055 49771</div>
+        <div class="info-row-sub">Denuncias generales y cuestiones policiales</div>
+        <a class="info-cta-link" href="https://www.google.com/maps/place/Via+Zara,+2,+50129+Firenze+FI,+Italia/@43.7812023,11.2413855,13.75z" target="_blank" style="margin-top:0.6rem;margin-bottom:0;">
+          <div class="info-cta-inner"><div class="info-cta-text">Ver en Google Maps</div></div>
+          <span class="info-cta-arrow">→</span>
+        </a>
+      </div>
+      <div class="info-row">
+        <span class="info-row-label">Commissariato San Giovanni · Centro</span>
+        <div class="info-row-val">Lungarno della Zecca Vecchia, 20/A · 📞 +39 055 4977800</div>
+        <div class="info-row-sub">El más útil para turistas — denuncias de robos o pérdidas</div>
+        <a class="info-cta-link" href="https://www.google.com/maps/place/Lungarno+della+Zecca+Vecchia,+20a,+50122+Firenze+FI,+Italia/@43.7667775,11.2671882,15z" target="_blank" style="margin-top:0.6rem;margin-bottom:0;">
+          <div class="info-cta-inner"><div class="info-cta-text">Ver en Google Maps</div></div>
+          <span class="info-cta-arrow">→</span>
+        </a>
+      </div>
+      <div class="info-row">
+        <span class="info-row-label">Commissariato Oltrarno</span>
+        <div class="info-row-val">Piazza del Tiratoio, 6 · 📞 +39 055 4977499</div>
+        <a class="info-cta-link" href="https://www.google.com/maps/search/Commissariato+Oltrarno+Piazza+del+Tiratoio+Firenze" target="_blank" style="margin-top:0.6rem;margin-bottom:0;">
+          <div class="info-cta-inner"><div class="info-cta-text">Ver en Google Maps</div></div>
+          <span class="info-cta-arrow">→</span>
+        </a>
+      </div>
+      <div class="info-row">
+        <span class="info-row-label">Carabinieri · Comando Provincial</span>
+        <div class="info-row-val">Borgo Ognissanti, 48 · 📞 +39 055 27661</div>
+        <a class="info-cta-link" href="https://www.google.com/maps/search/Borgo+Ognissanti+48+Firenze+Carabinieri" target="_blank" style="margin-top:0.6rem;margin-bottom:0;">
+          <div class="info-cta-inner"><div class="info-cta-text">Ver en Google Maps</div></div>
+          <span class="info-cta-arrow">→</span>
+        </a>
+      </div>
+      <div class="info-row">
+        <span class="info-row-label">🇪🇸 Consulado de España</span>
+        <div class="info-row-val">Via dell'Agnolo, 76 – 1º piano</div>
+        <div class="info-row-sub">📞 +39 055 212207 · ✉️ ch.florencia@maec.es</div>
+        <a class="info-cta-link" href="https://www.google.com/maps/place/V.+dell'Agnolo,+76,+50122+Firenze+FI,+Italia/@43.7705307,11.2607218,17z" target="_blank" style="margin-top:0.6rem;margin-bottom:0;">
+          <div class="info-cta-inner"><div class="info-cta-text">Ver en Google Maps</div></div>
+          <span class="info-cta-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── La Casita ── -->
+  <div class="info-section" id="info-casita" style="border-bottom:none;">
+    <button class="info-section-header" onclick="toggleInfo('casita')">
+      <span class="info-section-icon"><img src="img/icons/casa.png" alt="" style="width:22px;height:22px;object-fit:contain;"></span>
+      <span class="info-section-label">La Casita</span>
+      <span class="info-section-count">Via Jacopo da Diacceto, 32</span>
+      <span class="info-section-chevron">›</span>
+    </button>
+    <div class="info-section-body">
+      <div class="info-row accent">
+        <span class="info-row-label">📍 Dirección</span>
+        <div class="info-row-val"><b>Via Jacopo da Diacceto, 32</b><br>50123 Firenze FI, Italia</div>
+      </div>
+      <a class="info-cta-link" href="https://www.google.com/maps/place/Via+Jacopo+da+Diacceto,+32,+50123+Firenze+FI,+Italia/@43.7750228,11.2357898,14.02z" target="_blank">
+        <div class="info-cta-inner">
+          <div class="info-cta-text">Ver la casita en Google Maps</div>
+          <div class="info-cta-sub">Cómo llegar desde el aeropuerto o el centro</div>
+        </div>
+        <span class="info-cta-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <div style="height:calc(80px + env(safe-area-inset-bottom))"></div>
+</section>
+
+<!-- ════════════════════ TIENDAS ════════════════════ -->
+<section class="screen" id="screen-tiendas">
+  <div class="topbar"><div></div></div>
+  <div class="page-head">
+    <div class="page-title">Tiendas</div>
+    <div class="page-sub">12 tiendas únicas · Cuero, moda, gourmet y vintage</div>
+  </div>
+  <div class="chip-row" id="tiendas-chips"></div>
+  <div class="list" id="tiendas-list"></div>
+</section>
+
+<!-- ════════════════════ ITINERARIO ════════════════════ -->
+<section class="screen" id="screen-itinerario">
+  <div class="topbar"><div></div></div>
+  <div class="page-head">
+    <div class="page-title">Itinerario</div>
+    <div class="page-sub">9 – 12 Julio 2026</div>
+  </div>
+  <div class="day-row" id="day-row"></div>
+  <div class="timeline" id="timeline"></div>
+</section>
+
+<!-- ════════════════════ BOTTOM NAV ════════════════════ -->
+<nav class="bottom-nav">
+  <button class="nav-item active" data-tab="home" onclick="goTab('home')">
+    <span class="nav-icon-wrap">🏠</span>Inicio
+  </button>
+  <button class="nav-item" data-tab="visitas" onclick="goTab('visitas')">
+    <span class="nav-icon-wrap">🏛</span>Visitas
+  </button>
+  <button class="nav-item" data-tab="comer" onclick="goTab('comer')">
+    <span class="nav-icon-wrap"><img src="img/icons/comer.png" alt="" style="width:18px;height:18px;object-fit:contain;"></span>Comer & beber
+  </button>
+  <button class="nav-item" data-tab="tiendas" onclick="goTab('tiendas')">
+    <span class="nav-icon-wrap">🛍️</span>Shops
+  </button>
+  <button class="nav-item" data-tab="itinerario" onclick="goTab('itinerario')">
+    <span class="nav-icon-wrap"><img src="img/icons/itinerario.png" alt="" style="width:18px;height:18px;object-fit:contain;"></span>Ruta
+  </button>
+</nav>
+
+<!-- ════════════════════ DETAIL SHEET ════════════════════ -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheetBg(event)">
+  <div class="sheet" onclick="event.stopPropagation()" id="sheet"></div>
+</div>
+
+<script>
+  // ─── DATA: VISITAS ──────────────────────────────────────────
+  const VISITAS = [
+    { id:'duomo', name:'Catedral de Santa María del Fiore', tipo:'Catedral', zona:'Duomo', valoracion:10, img:'img/Catedral de Santa María del Fiore.png',
+      descripcion:'La Catedral de Santa María del Fiore es el símbolo absoluto de Florencia y una de las hazañas arquitectónicas más extraordinarias de la humanidad. Su monumental cúpula, diseñada por Filippo Brunelleschi en el siglo XV sin andamio central, fue durante mucho tiempo la más grande del mundo.',
+      precio:null, horario:'10:00h – 16:30h', reserva:'Obligatoria para subir a la Cupola',
+      website:'https://www.ilgrandemuseodelduomo.it', maps:'https://www.google.com/maps?q=43.7731,11.2558' },
+    { id:'uffizi', name:'Galería Uffizi', tipo:'Museo', zona:'Piazza della Signoria', valoracion:9, img:'img/Museo Uffizi.png',
+      descripcion:'Construida por Cosme I de Médici, la Galería Uffizi alberga obras de Leonardo da Vinci, Miguel Ángel, Botticelli, Rafael, Caravaggio y Tiziano. La Primavera y El nacimiento de Venus de Botticelli se encuentran aquí.',
+      precio:null, horario:'8:15h – 18:50h', reserva:'Muy recomendada — evita colas largas',
+      website:'https://www.uffizi.it', maps:'https://www.google.com/maps?q=43.7679,11.2551' },
+    { id:'academia', name:'Galería de la Academia', tipo:'Museo', zona:'San Marco', valoracion:10, img:'img/Galería de la Academia.png',
+      descripcion:'Hogar del David de Miguel Ángel y los extraordinarios Prisioneros inacabados. El David, esculpido entre 1501 y 1504, es considerado la obra cumbre del Renacimiento italiano.',
+      precio:null, horario:'8:15h – 18:50h', reserva:'Obligatoria — reservar con antelación',
+      website:'https://www.galleriaaccademia.it', maps:'https://www.google.com/maps?q=43.7766,11.2587' },
+    { id:'palazzo', name:'Palazzo Vecchio', tipo:'Palacio', zona:'Piazza della Signoria', valoracion:10, img:'img/Palazzo Vecchio.png',
+      descripcion:'Sede histórica del gobierno florentino y hoy museo municipal. El Salón de los Quinientos, con murales de Vasari, es uno de los espacios más imponentes del Renacimiento.',
+      precio:17.5, horario:'9:00h – 19:00h', reserva:'Recomendada en temporada alta',
+      website:'https://www.palazzovecchio-collezioni.it', maps:'https://www.google.com/maps?q=43.7697,11.2564' },
+    { id:'signoria', name:'Plaza de la Signoria', tipo:'Plaza', zona:'Piazza della Signoria', valoracion:9, img:'img/Plaza de la Signoria.png',
+      descripcion:'El salón al aire libre de Florencia. La Loggia dei Lanzi exhibe esculturas como el Perseo de Cellini y El Rapto de las Sabinas de Giambologna.',
+      precio:0, horario:'24 horas', reserva:null,
+      website:null, maps:'https://www.google.com/maps?q=43.7697,11.2563' },
+    { id:'ponte-vecchio', name:'Ponte Vecchio', tipo:'Puente', zona:'Centro Storico', valoracion:10, img:'img/Ponte Vecchio.png',
+      descripcion:'El puente más antiguo y romántico de Florencia, con joyerías medievales a ambos lados. Construido en 1345, fue el único que los nazis no destruyeron en 1944.',
+      precio:0, horario:'24 horas', reserva:null,
+      website:null, maps:'https://www.google.com/maps?q=43.7681,11.2531' },
+    { id:'piazzale', name:'Piazzale Michelangelo', tipo:'Mirador', zona:'Oltrarno', valoracion:10, img:'img/Piazzale Michelangelo.png',
+      descripcion:'El mejor mirador de Florencia. Desde aquí se abarca el skyline completo: Duomo, Campanile, Palazzo Vecchio y el Arno entre tejados de terracota.',
+      precio:0, horario:'24 horas', reserva:null,
+      website:null, maps:'https://www.google.com/maps?q=43.7629,11.2654' },
+    { id:'boboli', name:'Jardines de Boboli', tipo:'Jardines', zona:'Oltrarno', valoracion:8, img:'img/Jardines de Boboli.png',
+      descripcion:'Los jardines renacentistas del Palazzo Pitti. Un laberinto de fuentes, esculturas, grutas y cipreses centenarios con vistas espectaculares.',
+      precio:null, horario:'8:15h – 19:30h', reserva:'Recomendada en temporada alta',
+      website:'https://www.uffizi.it/giardini-boboli', maps:'https://www.google.com/maps?q=43.7651,11.2497' },
+    { id:'smn', name:'Santa Maria Novella', tipo:'Iglesia', zona:'Santa Maria Novella', valoracion:9, img:'img/Santa Maria Novella.png',
+      descripcion:'Una de las iglesias más elegantes de Florencia. Su fachada renacentista de Alberti oculta obras de Masaccio, Giotto, Ghirlandaio y Brunelleschi.',
+      precio:7.5, horario:'9:00h – 17:30h', reserva:null,
+      website:'https://www.smn.it', maps:'https://www.google.com/maps?q=43.7742,11.2494' },
+    { id:'mediceas', name:'Capillas Mediceas', tipo:'Museo', zona:'San Lorenzo', valoracion:9, img:'img/Capillas Mediceas.png',
+      descripcion:'El mausoleo de la familia Médici. La Sagrestia Nuova de Miguel Ángel alberga El Día, La Noche, La Aurora y El Crepúsculo.',
+      precio:12, horario:'8:15h – 13:50h', reserva:'Recomendada',
+      website:'https://www.bargellomusei.beniculturali.it', maps:'https://www.google.com/maps?q=43.7748,11.2519' },
+    { id:'bargello', name:'Museo Bargello', tipo:'Museo', zona:'Centro Storico', valoracion:8, img:'img/Bargello.png',
+      descripcion:'El museo de escultura renacentista más importante de Florencia, con los Davids de Donatello y Verrocchio.',
+      precio:null, horario:'8:15h – 13:50h', reserva:null,
+      website:'https://www.bargellomusei.beniculturali.it', maps:'https://www.google.com/maps?q=43.7706,11.2590' },
+    { id:'santa-croce', name:'Basílica de Santa Croce', tipo:'Iglesia', zona:'Santa Croce', valoracion:9, img:'img/Basílica de la Santa Cruz.png',
+      descripcion:'El "Templo de las Glorias Italianas". Alberga las tumbas de Miguel Ángel, Galileo, Maquiavelo y Rossini.',
+      precio:null, horario:'9:30h – 17:30h', reserva:null,
+      website:'https://www.santacroceopera.it', maps:'https://www.google.com/maps/place/Bas%C3%ADlica+de+la+Santa+Cruz/@43.7685683,11.2596928,17z' },
+    { id:'bardini', name:'Villa Bardini', tipo:'Jardines', zona:'San Niccolò', valoracion:9, img:'img/Villa Bardini.png',
+      descripcion:'Villa histórica del siglo XVII en Oltrarno. El jardín combina estilo barroco italiano, bosque inglés y zona agrícola toscana.',
+      precio:null, horario:'10:00h – 19:00h', reserva:null,
+      website:'https://www.villabardini.it', maps:'https://www.google.com/maps/place/Villa+Bardini/@43.7639892,11.2535956,17z' },
+    { id:'galileo', name:'Museo Galileo', tipo:'Museo', zona:'Lungarno', valoracion:9, img:'img/Museo Galileo.png',
+      descripcion:'Colección única de instrumentos científicos antiguos y telescopios originales de Galileo Galilei.',
+      precio:16, horario:'9:30h – 18:00h', reserva:'Recomendada en temporada alta',
+      website:'https://www.museogalileo.it', maps:'https://maps.google.com/?cid=1854030661923039958' },
+    { id:'san-miniato', name:'San Miniato al Monte', tipo:'Mirador', zona:'Oltrarno', valoracion:9, img:'img/San Miniato al Monte.png',
+      descripcion:'Basílica románica del siglo XI en uno de los puntos más altos de Florencia. Mosaicos dorados y atmósfera monástica, casi sin turistas.',
+      precio:0, horario:'9:30–13:00h / 15:30–19:00h', reserva:null,
+      website:'http://www.sanminiatoalmonte.it', maps:'https://www.google.com/maps?cid=4269341724449723056' },
+    { id:'orsanmichele', name:'Iglesia de Orsanmichele', tipo:'Iglesia', zona:'Centro Storico', valoracion:10, img:'img/Iglesia de Orsanmichele.png',
+      descripcion:'Uno de los edificios más singulares de Florencia. Construido en el siglo XIV como mercado de grano y transformado en iglesia de los gremios comerciales. Su exterior tiene nichos fortificados con esculturas de Donatello, Ghiberti y Verrocchio; en el interior, un intrincado tabernáculo de mármol de Orcagna. Las plantas superiores tienen museo y vistas al Duomo.',
+      precio:8, horario:null, reserva:'Entrada reducida 2€ para jóvenes UE de 18-25 años',
+      website:null, maps:'https://www.google.com/maps?cid=6873789337362009994' },
+  ];
+
+  // ─── DATA: COMER ────────────────────────────────────────────
+  const COMER = [
+    { id:'pastella', name:'Osteria Pastella', tipo:'Restaurante', zona:'Santa Maria Novella', valoracion:10, img:'img/Pastella.png',
+      descripcion:'Famosa por su pasta fresca artesanal. Su plato estrella: Tagliatelle flambé al tartufo, preparado en una rueda de Grana Padano ardiendo.',
+      precio:28, reserva:'Reservar en osteriapastella.myrestoo.net', tel:'+39 055 267 0240',
+      website:'https://www.osteriapastella.it/', maps:'https://www.google.com/maps?q=43.7745,11.2460' },
+    { id:'il-santino', name:'Il Santino', tipo:'Enoteca', zona:'Oltrarno', valoracion:10, img:'img/Il Santino.png',
+      descripcion:'Bar de vinos íntimo en Oltrarno, hermano menor de Il Santo Bevitore. Vinos naturales y tabla de quesos toscanos.',
+      precio:null, reserva:'No se aceptan reservas — por orden de llegada',
+      website:'https://il-santino.placejoys.com/', maps:'https://www.google.com/maps?q=43.7682,11.2464' },
+    { id:'mercato-centrale', name:'Mercato Centrale Firenze', tipo:'Mercado', zona:'San Lorenzo', valoracion:9, img:'img/Mercato Centrale Firenze.png',
+      descripcion:'Mercado gastronómico en la planta superior del histórico Mercato de San Lorenzo. Mucho ambiente y variedad de platos frescos.',
+      precio:null, reserva:'Sin reserva',
+      website:null, maps:'https://www.google.com/maps?q=Piazza+del+Mercato+Centrale+Firenze' },
+    { id:'vini-vecchi', name:'Vini e Vecchi Sapori', tipo:'Restaurante', zona:'Centro Storico', valoracion:9, img:'img/Vini e Vecchi Sapori.png',
+      descripcion:'Pequeña osteria familiar célebre por sus pappardelle al ragú de pato y su tiramisú de frambuesa. Menú de pizarra que cambia cada día.',
+      precio:30, reserva:'Imprescindible reservar',
+      website:null, maps:'https://www.google.com/maps/place/Vini+e+Vecchi+Sapori/@43.7700939,11.2542408,17z' },
+    { id:'i-tuscani', name:"I' Tuscani", tipo:'Restaurante', zona:'Centro Storico', valoracion:9, img:"img/I Tuscani.png",
+      descripcion:'Especialistas en Bistecca alla fiorentina y carnes toscanas de primera calidad. Una de las mejores referencias de carne en Florencia.',
+      precio:null, reserva:'Recomendada',
+      website:null, maps:'https://maps.google.com/?q=Via+de+Federighi+37R+Firenze' },
+    { id:'pandemonio', name:'Trattoria Pandemonio', tipo:'Restaurante', zona:'Santo Spirito', valoracion:9, img:'img/Trattoria Pandemonio di Casa Brog.png',
+      descripcion:'Cocina típica toscana en el animado barrio de Santo Spirito. Uno de los rincones más auténticos y locales del Oltrarno.',
+      precio:null, reserva:'Online o por teléfono',
+      website:'https://trattoriapandemonio.com/es', maps:'https://www.google.com/maps?q=Via+del+Leone+50R+Firenze' },
+    { id:'il-giardino', name:'Trattoria Il Giardino', tipo:'Restaurante', zona:'Oltrarno', valoracion:10, img:'img/Trattoria Il Giardino.png',
+      descripcion:'Bistecca alla Fiorentina y pici al sugo di cinghiale. Decorada con paredes de piedra vista y plantas, terraza con jardín propio.',
+      precio:30, reserva:'Muy recomendada para cenas y fines de semana',
+      website:'https://anticatrattoriailgiardino.it/', maps:'http://google.com/maps?cid=7560700694181094678' },
+    { id:'prosciutteria', name:'La Prosciutteria', tipo:'Bar', zona:'Santa Croce', valoracion:9, img:'img/La Prosciutteria.png',
+      descripcion:'Tablas de embutidos y quesos toscanos, panini artesanales. Un clásico de Santa Croce para un almuerzo ligero o aperitivo informal.',
+      precio:null, reserva:'Sin reserva — suele llenarse',
+      website:'https://www.laprosciutteria.com/ristorante-firenze/', maps:'https://www.google.com/maps?q=Via+dei+Neri+54R+Firenze' },
+    { id:'fattoria-rossi', name:'Fattoria Rossi Firenze', tipo:'Restaurante', zona:'Centro Storico', valoracion:9, img:'img/Fattoria Rossi Firenze.png',
+      descripcion:'Cocina toscana con producto de granja. Ingredientes de calidad excepcional en un ambiente pequeño e íntimo.',
+      precio:null, reserva:null,
+      website:'https://www.fattoriarossifirenze.it/en/', maps:'https://www.google.com/maps?q=Piazza+dei+Davanzati+3R+Firenze' },
+    { id:'degusteria', name:'Degusteria Italiana agli', tipo:'Restaurante', zona:'Uffizi', valoracion:9, img:'img/Degusteria Italiana agli.png',
+      descripcion:'Restaurante muy bien valorado cerca de los Uffizi. Sin reserva y con mucha demanda — conviene llegar con tiempo.',
+      precio:null, reserva:'Sin reserva',
+      website:'https://www.degusteriaitalianafirenze.com/', maps:'https://www.google.com/maps/place/Degusteria+Italiana/@43.7686742,11.2521625,17z' },
+    // ── Una copita ──
+    { id:'loggia-roof', name:'Loggia Roof Bar', tipo:'Bar', zona:'Oltrarno · Palazzo Guadagni', valoracion:9, img:'img/Piazzale Michelangelo.png', emoji:'🌿',
+      descripcion:'Terraza en el 5º piso del Hotel Palazzo Guadagni con vistas espectaculares a la Piazza Santo Spirito. Ideal para el atardecer con un negroni clásico. Ambiente elegante y relajado.',
+      precio:null, reserva:'Entrada gratis · Consumición obligatoria (cócteles 15–22€) · Reserva recomendada',
+      website:null, maps:'https://www.google.com/maps/search/Loggia+Roof+Bar+Palazzo+Guadagni+Firenze' },
+    { id:'rasputin', name:'Rasputin', tipo:'Bar', zona:'Oltrarno', valoracion:8.5, img:'img/Il Santino.png', emoji:'🕯️',
+      descripcion:'Speakeasy clandestino en Oltrarno. Llama al timbre de una puerta sin marcar. Interior ambientado como un estudio ruso del siglo XIX, iluminado solo con velas. Cócteles de autor excepcionales.',
+      precio:null, reserva:'Entrada gratis (acceso discrecional) · Cócteles de alta coctelería 16–24€',
+      website:null, maps:'https://www.google.com/maps/search/Rasputin+bar+Firenze' },
+    { id:'bitter-bar', name:'Bitter Bar', tipo:'Bar', zona:'Sant\'Ambrogio', valoracion:8.8, img:'img/Pastella.png', emoji:'🎷',
+      descripcion:'Laboratorio de coctelería vanguardista con estética de los años 20 y música jazz. Utilizan infusiones, ahumado y envejecido propios. Ambiente sofisticado, ideal para conversar.',
+      precio:null, reserva:'Entrada gratis · Cócteles 15–22€',
+      website:null, maps:'https://www.google.com/maps/search/Bitter+Bar+Firenze' },
+    { id:'mad-souls', name:'Mad – Souls & Spirits', tipo:'Bar', zona:'San Frediano', valoracion:9, img:'img/Trattoria Pandemonio di Casa Brog.png', emoji:'🍺',
+      descripcion:'Pub de cócteles artesanos en San Frediano con actitud totalmente desenfadada. Personal divertidísimo, paredes de ladrillo visto y menú con nombres irónicos. Ambiente muy local y auténtico.',
+      precio:null, reserva:'Entrada gratis · Mejor precio-calidad de la ciudad (8–14€)',
+      website:null, maps:'https://www.google.com/maps/search/Mad+Souls+Spirits+Firenze' },
+    { id:'red-garter', name:'Red Garter', tipo:'Bar', zona:'Santa Croce', valoracion:8.8, img:'img/La Prosciutteria.png', emoji:'🎸',
+      descripcion:'Clásico de la noche florentina desde 1962 cerca de Santa Croce. Estilo taberna americana con karaoke, conciertos en directo y deportes. Muy concurrido, ruidoso e internacional.',
+      precio:null, reserva:'Entrada gratis la mayoría de noches · Copas y cervezas desde 6€',
+      website:null, maps:'https://www.google.com/maps/search/Red+Garter+Firenze' },
+    { id:'tenax', name:'Tenax Discoteca Club', tipo:'Discoteca', zona:'Peretola', valoracion:8.2, img:'img/Florence_página principal.jpeg', emoji:'🔥',
+      descripcion:'La meca de la música electrónica en Florencia. DJs internacionales de House y Techno en gran formato. Solo abre viernes y sábados por la noche.',
+      precio:null, reserva:'Entrada 15–30€ (suele incluir una copa)',
+      website:null, maps:'https://www.google.com/maps/search/Tenax+discoteca+Firenze' },
+  ];
+
+  // ─── DATA: TIENDAS ──────────────────────────────────────────
+  const TIENDAS = [
+    { id:'angela-caputi', tipo:'Joyería', zona:'Centro Storico',
+      img:'img/Angela Caputi Giuggiù 1.png', img2:'img/Angela Caputi Giuggiù 2.png',
+      name:'Angela Caputi Giuggiù',
+      descripcion:'Joyería de autor contemporánea, icono del diseño florentino desde los años 80. Piezas únicas en resina de colores vivos y formas orgánicas. Una referencia mundial del complemento artístico.',
+      horario:'Lun – Sáb, 10:00h – 19:00h', precio:null,
+      tip:'Las piezas de resina son increíblemente ligeras — perfectas como regalo o souvenir premium.',
+      maps:'https://www.google.com/maps/search/Angela+Caputi+Firenze' },
+    { id:'infinity-leather', tipo:'Cuero', zona:'San Lorenzo',
+      img:'img/Infinity Leather 1.png', img2:'img/Infinity Leather 2.png',
+      name:'Infinity Leather',
+      descripcion:'Artículos de cuero artesanal florentino de primera calidad. Especialistas en bolsos, cinturones, carteras y complementos con acabados impecables. El mejor relación calidad-precio en cuero florentino.',
+      horario:'Lun – Dom, 9:30h – 19:30h', precio:null,
+      tip:'El cuero de calidad tiene costuras interiores, no pegadas. Aquí puedes verlo bien.',
+      maps:'https://www.google.com/maps/search/Infinity+Leather+Firenze' },
+    { id:'luisaviaroma', tipo:'Moda lujo', zona:'Via Roma',
+      img:'img/Luisaviaroma 1.png', img2:'img/Luisaviaroma 2.png',
+      name:'Luisaviaroma',
+      descripcion:'El templo del lujo florentino, fundado en 1929. Tienda multimarca de moda de lujo con las mejores marcas internacionales: Balenciaga, Rick Owens, Bottega Veneta y más. Una institución de la moda mundial.',
+      horario:'Lun – Sáb, 10:00h – 19:30h', precio:null,
+      tip:'La planta de rebajas es un secreto a voces. Pregunta en caja por descuentos en colecciones anteriores.',
+      maps:'https://www.google.com/maps/place/Luisa+Via+Roma/@43.7706,11.2540,17z' },
+    { id:'farmacia-smn', tipo:'Artesanía', zona:'Santa Maria Novella',
+      img:'img/Farmacia de Santa María Novella 1.png', img2:null,
+      name:'Farmacia di Santa Maria Novella',
+      descripcion:'Una de las farmacias más antiguas del mundo, fundada por monjes dominicos en 1612. Sus perfumes, cremas, jabones y elixires siguen elaborándose con recetas históricas de los siglos XVII y XVIII. Los salones interiores son de una belleza extraordinaria.',
+      horario:'Lun – Dom, 9:00h – 20:00h', precio:null,
+      tip:'El Acqua di Colonia Santa Maria Novella y la crema de rosas son los bestsellers. Los frascos de cristal son un regalo elegantísimo.',
+      maps:'https://www.google.com/maps/place/Officina+Profumo-Farmaceutica+di+Santa+Maria+Novella/@43.7741,11.2489,17z' },
+    { id:'eredi-chiarini', tipo:'Cuero', zona:'Piazza della Repubblica',
+      img:'img/Eredi Chiarini 1.png', img2:'img/Eredi Chiarini 2.png',
+      name:'Eredi Chiarini',
+      descripcion:'Tienda histórica de artículos de cuero de altísima calidad, artesanos florentinos desde varias generaciones. Carteras, bolsos y complementos de piel curtida vegetal. Un estándar de referencia en la marroquinería florentina.',
+      horario:'Lun – Sáb, 10:00h – 19:00h', precio:null,
+      tip:'Pregunta por las colecciones de cuero vegetal — sin tintes sintéticos y con una pátina que mejora con el uso.',
+      maps:'https://www.google.com/maps/search/Eredi+Chiarini+Firenze' },
+    { id:'bjork-florence', tipo:'Moda', zona:'Oltrarno',
+      img:'img/Bjork Florence 1.png', img2:'img/Bjork Florence 2.png',
+      name:'Björk Florence',
+      descripcion:'Tienda de moda contemporánea con selección curada de marcas independientes italianas y nórdicas. Diseño limpio, materiales de calidad y ediciones limitadas. El lugar favorito del Florencia más cosmopolita.',
+      horario:'Mar – Sáb, 11:00h – 19:30h', precio:null,
+      tip:'Siguen su Instagram para conocer las novedades y drops de edición limitada.',
+      maps:'https://www.google.com/maps/search/Bjork+Florence' },
+    { id:'boutique-nadine', tipo:'Moda', zona:'Centro Storico',
+      img:'img/Boutique Nadine 1.png', img2:'img/Boutique Nadine 2.png',
+      name:'Boutique Nadine',
+      descripcion:'Boutique de moda de mujer con piezas únicas y colecciones curadas de diseñadores emergentes italianos. Ambiente íntimo, asesoramiento personalizado y una selección que no verás en ninguna otra tienda de Florencia.',
+      horario:'Lun – Sáb, 10:30h – 19:30h', precio:null,
+      tip:'Vale la pena ir sin prisa. El equipo conoce cada pieza y puede asesorarte muy bien.',
+      maps:'https://www.google.com/maps/search/Boutique+Nadine+Firenze' },
+    { id:'il-torchio', tipo:'Papelería', zona:'Oltrarno',
+      img:'img/Il Torchio di Erin Ciulla 1.png', img2:'img/Il Torchio di Erin Ciulla 2.png',
+      name:'Il Torchio di Erin Ciulla',
+      descripcion:'Taller de encuadernación artesanal en el corazón del Oltrarno. Cuadernos, álbumes y cajas decoradas a mano con papel marmolado florentino. Se puede ver a la artesana trabajar en el mismo local.',
+      horario:'Lun – Sáb, 10:00h – 19:00h', precio:null,
+      tip:'El papel marmolado florentino es el souvenir más elegante, ligero y auténtico que te puedes llevar.',
+      maps:'https://www.google.com/maps/search/Il+Torchio+Firenze' },
+    { id:'maledetti-toscani', tipo:'Gourmet', zona:'Centro Storico',
+      img:'img/Maledetti Toscani 1.png', img2:null,
+      name:'Maledetti Toscani',
+      descripcion:'Tienda de productos gourmet toscanos con selección impecable: aceites de oliva extra virgen, vinos naturales, conservas artesanales, trufa fresca y embutidos de cerdo cinta senese. El mejor resumen comestible de la Toscana.',
+      horario:'Lun – Dom, 10:00h – 21:00h', precio:null,
+      tip:'Los aceites de oliva de cosecha temprana (noviembre) son espectaculares. Pregunta por los del año.',
+      maps:'https://www.google.com/maps/search/Maledetti+Toscani+Firenze' },
+    { id:'pegna', tipo:'Gourmet', zona:'Centro Storico',
+      img:'img/Pegna dal 1860 1.jpg', img2:'img/Pegna dal 1860 2.jpg',
+      name:'Pegna dal 1860',
+      descripcion:'Supermercado gourmet histórico de Florencia, fundado en 1860. Excelente selección de productos italianos de primera: vinos toscanos, quesos DOP, embutidos artesanos y conservas. Un espacio de culto para los amantes de la gastronomía italiana.',
+      horario:'Lun – Sáb, 9:00h – 19:30h', precio:null,
+      tip:'La sección de vinos locales (Chianti Classico, Morellino di Scansano) tiene precios mucho mejores que en restaurantes.',
+      maps:'https://www.google.com/maps/place/Pegna/@43.7709,11.2545,17z' },
+    { id:'street-doing', tipo:'Vintage', zona:'San Niccolò',
+      img:'img/Street Doing Vintage Couture 1.png', img2:'img/Street Doing Vintage Couture 2.png',
+      name:'Street Doing Vintage Couture',
+      descripcion:'La mejor tienda de moda vintage y segunda mano de Florencia. Piezas únicas de alta costura y marcas premium a precios irrepetibles. Chanel, Versace, Pucci y más, seleccionados con un criterio editorial impecable.',
+      horario:'Mar – Dom, 11:00h – 19:00h', precio:null,
+      tip:'Las novedades llegan los martes y jueves. Si buscas algo en concreto, deja tu nombre y te llaman.',
+      maps:'https://www.google.com/maps/search/Street+Doing+Vintage+Firenze' },
+    { id:'wp-store', tipo:'Moda', zona:'Oltrarno',
+      img:'img/WP Store Firenze 1.png', img2:'img/WP Store Firenze 2.png',
+      name:'WP Store Firenze',
+      descripcion:'Tienda de moda contemporánea con una selección curada de marcas premium y diseñadores emergentes. Estética minimalista y elegante, con foco en la calidad de los materiales y el corte. Un descubrimiento para los amantes del slow fashion.',
+      horario:'Mar – Sáb, 11:00h – 19:30h', precio:null,
+      tip:'Combina bien con una visita al Palazzo Pitti justo enfrente.',
+      maps:'https://www.google.com/maps/search/WP+Store+Firenze' },
+  ];
+
+  // ─── DATA: ITINERARIO ───────────────────────────────────────
+  const DAYS = [
+    { date:'2026-07-09', dow:'JUE', num:9,
+      events:[
+        { time:'', emoji:'✈️', icon:'img/icons/avion.png', name:'Llegada a Florencia', desc:'Vuelo Madrid → Florencia. Llegada al aeropuerto de Peretola. Traslado al centro en taxi.', meta:[{l:'Traslado',v:'Taxi aeropuerto → centro: ~50€'}] },
+        { time:'Noche', emoji:'🍽️', icon:'img/icons/pasta.png', name:'Cena Osteria Pastella', desc:'Junto a Santa Maria Novella. Famosa por los tagliatelle flambeados en rueda de Grana Padano con trufa negra.', meta:[{l:'Teléfono',v:'+39 055 267 0240'}], placeRef:{type:'comer', id:'pastella'} },
+      ]},
+    { date:'2026-07-10', dow:'VIE', num:10,
+      events:[
+        { time:'10:30', emoji:'🗺️', name:'Tour Florencia', desc:'Tour privado con la guía Sonia Sánchez. Punto de encuentro en la Plaza de la Signoria. Paseo por el centro histórico con parada en cada uno de estos sitios.', meta:[{l:'Guía',v:'Sonia Sánchez · +39 320 261 9440'}], placeRefs:[{type:'visita', id:'signoria'},{type:'visita', id:'uffizi'},{type:'visita', id:'duomo'},{type:'visita', id:'orsanmichele'},{type:'visita', id:'academia'}] },
+        { time:'14:00', emoji:'🍝', icon:'img/icons/mercado.png', name:'Comida Mercato Centrale', desc:'Planta superior del Mercato di San Lorenzo. Sin reserva — llegar a las 14:00 evita colas.', meta:[], placeRef:{type:'comer', id:'mercato-centrale'} },
+        { time:'18:30', emoji:'🌅', name:'Oltrarno · Atardecer', desc:'Paseo por Oltrarno: Jardín de Bóboli, Villa Bardini, Giardino delle Rose y Piazzale Michelangelo.', meta:[{l:'Entrada Bóboli',v:'~10€ · 8:15h–19:30h'},{l:'Villa Bardini',v:'10:00h–19:00h'},{l:'Piazzale',v:'Gratis · 24h · Imprescindible al atardecer'}] },
+        { time:'21:30', emoji:'🍷', icon:'img/icons/comer.png', name:'Cena en Il Santino', desc:'Enoteca íntima en Oltrarno. Vinos naturales, quesos toscanos y crostini. No acepta reservas.', meta:[], placeRef:{type:'comer', id:'il-santino'} },
+      ]},
+    { date:'2026-07-11', dow:'SÁB', num:11,
+      events:[
+        { time:'', emoji:'🤷', name:'Día libre · Ya vemos', desc:'Mañana y tarde sin plan fijo — se decide sobre la marcha según lo que apetezca.', meta:[
+          {l:'Visitas mañana', v:'Por decidir'},
+          {l:'Visitas tarde', v:'Por decidir'},
+          {l:'Desayuno', v:'Improvisado'},
+          {l:'Comida', v:'Improvisado'},
+          {l:'Una paradita', v:'Improvisado'},
+          {l:'Cena', v:'Improvisado'},
+        ]},
+        { time:'21:00', emoji:'🌉', name:'Ponte Vecchio', desc:'El puente más famoso de Europa al anochecer. Paseo gratuito — mejor en última hora, cuando bajan los turistas.', meta:[], placeRef:{type:'visita', id:'ponte-vecchio'} },
+      ]},
+    { date:'2026-07-12', dow:'DOM', num:12,
+      events:[
+        { time:'', emoji:'☀️', name:'Última mañana libre', desc:'Desayuno en alguna cafetería favorita y último paseo por el centro.', meta:[{l:'Sugerencia',v:'Caffè Gilli · Mercato Centrale · Santa Croce'}] },
+        { time:'Tarde', emoji:'🏠', icon:'img/icons/avion.png', name:'Vuelta a Madrid', desc:'Traslado al aeropuerto de Peretola y vuelo de regreso.', meta:[{l:'Traslado',v:'Taxi centro → aeropuerto: ~50€'}] },
+      ]},
+  ];
+
+  // ─── HELPERS ────────────────────────────────────────────────
+  function stars(v){ if(v==null) return ''; return `★ ${(v/2).toFixed(1)}`; }
+  function iconHTML(e, size){
+    return e.icon ? `<img src="${e.icon}" alt="" style="width:${size}px;height:${size}px;object-fit:contain;">` : e.emoji;
+  }
+  function priceTag(p){
+    if(p === 0) return '<span class="item-free">Gratis</span>';
+    if(p == null) return '';
+    return `<span class="item-tag">${p}€ aprox.</span>`;
+  }
+
+  // ─── RENDER: VISITAS LIST ───────────────────────────────────
+  const visitasTipos = ['Todos', ...new Set(VISITAS.map(v=>v.tipo))];
+  let visitasFilter = 'Todos';
+  function renderVisitasChips(){
+    document.getElementById('visitas-chips').innerHTML = visitasTipos.map(t =>
+      `<button class="chip${t===visitasFilter?' active':''}" onclick="setVisitasFilter('${t}')">${t}</button>`
+    ).join('');
+  }
+  function setVisitasFilter(t){ visitasFilter = t; renderVisitasChips(); renderVisitasList(); }
+  function renderVisitasList(){
+    const items = VISITAS.filter(v => visitasFilter==='Todos' || v.tipo===visitasFilter);
+    document.getElementById('visitas-list').innerHTML = items.map(v => `
+      <div class="item-card" onclick="openVisitaSheet('${v.id}')">
+        <div class="item-thumb"><img src="${v.img}" alt="${v.name}" loading="lazy" /></div>
+        <div class="item-info">
+          <div class="item-top"><div class="item-name">${v.name}</div>${v.valoracion?`<div class="item-rating">${stars(v.valoracion)}</div>`:''}</div>
+          <div class="item-desc">${v.descripcion}</div>
+          <div class="item-meta"><span class="item-tag">${v.zona}</span>${priceTag(v.precio)}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ─── RENDER: COMER LIST ─────────────────────────────────────
+  const comerTipos = ['Todos', ...new Set(COMER.map(c=>c.tipo))];
+  let comerFilter = 'Todos';
+  function renderComerChips(){
+    const comerTipoLabel = {'Restaurante':'Rest.'};
+    document.getElementById('comer-chips').innerHTML = comerTipos.map(t =>
+      `<button class="chip${t===comerFilter?' active':''}" onclick="setComerFilter('${t}')">${comerTipoLabel[t]||t}</button>`
+    ).join('');
+  }
+  function setComerFilter(t){ comerFilter = t; renderComerChips(); renderComerList(); }
+  function renderComerList(){
+    const items = COMER.filter(c => comerFilter==='Todos' || c.tipo===comerFilter);
+    document.getElementById('comer-list').innerHTML = items.map(c => {
+      const thumbHTML = c.img
+        ? `<div class="item-thumb"><img src="${c.img}" alt="${c.name}" loading="lazy" /></div>`
+        : `<div class="tshop-emoji-thumb">${c.emoji||'🍸'}</div>`;
+      return `
+      <div class="item-card" onclick="openComerSheet('${c.id}')">
+        ${thumbHTML}
+        <div class="item-info">
+          <div class="item-top"><div class="item-name">${c.name}</div>${c.valoracion?`<div class="item-rating">${stars(c.valoracion)}</div>`:''}</div>
+          <div class="item-desc">${c.descripcion}</div>
+          <div class="item-meta"><span class="item-tag">${c.zona}</span><span class="item-tag">${c.tipo}</span>${priceTag(c.precio)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ─── RENDER: TIENDAS ────────────────────────────────────────
+  const tiendasTipos = ['Todas', ...new Set(TIENDAS.map(t=>t.tipo))];
+  let tiendasFilter = 'Todas';
+  function renderTiendasChips(){
+    document.getElementById('tiendas-chips').innerHTML = tiendasTipos.map(t =>
+      `<button class="chip${t===tiendasFilter?' active':''}" onclick="setTiendasFilter('${t}')">${t}</button>`
+    ).join('');
+  }
+  function setTiendasFilter(t){ tiendasFilter = t; renderTiendasChips(); renderTiendasList(); }
+  function renderTiendasList(){
+    const items = TIENDAS.filter(t => tiendasFilter==='Todas' || t.tipo===tiendasFilter);
+    document.getElementById('tiendas-list').innerHTML = items.map(t => `
+      <div class="item-card" onclick="openTiendaSheet('${t.id}')">
+        <div class="tcard-real-thumb"><img src="${t.img}" alt="${t.name}" loading="lazy" /></div>
+        <div class="item-info">
+          <div class="item-top"><div class="item-name">${t.name}</div></div>
+          <div class="item-desc">${t.descripcion}</div>
+          <div class="item-meta"><span class="item-tag">${t.zona}</span><span class="item-tag">${t.tipo}</span>${priceTag(t.precio)}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+  function openTiendaSheet(id){
+    const t = TIENDAS.find(x=>x.id===id);
+    if (!t) return;
+    const horarioRow = t.horario ? `<div class="sheet-meta-row"><span class="sheet-meta-label">Horario</span><span class="sheet-meta-val">${t.horario}</span></div>` : '';
+    const precioRow = `<div class="sheet-meta-row"><span class="sheet-meta-label">Precio</span><span class="sheet-meta-val">${t.precio===0?'Gratis':(t.precio?t.precio+'€ aprox.':'Consultar')}</span></div>`;
+    const tipRow = t.tip ? `<div class="sheet-meta-row"><span class="sheet-meta-label">💡 Consejo</span><span class="sheet-meta-val">${t.tip}</span></div>` : '';
+    const mapsBtn = t.maps ? `<a class="sheet-cta" href="${t.maps}" target="_blank">Ver en Google Maps</a>` : '';
+    const img2Row = t.img2 ? `
+      <div style="padding:0 1.4rem 0.8rem;">
+        <div style="border-radius:14px; overflow:hidden; height:180px;">
+          <img src="${t.img2}" alt="${t.name}" style="width:100%;height:100%;object-fit:cover;filter:saturate(0.9) brightness(0.88);" loading="lazy" />
+        </div>
+      </div>` : '';
+    openSheet(`
+      <div class="sheet-hero">
+        <img src="${t.img}" alt="${t.name}" />
+        <div class="sheet-hero-shade"></div>
+        <button class="sheet-close" onclick="closeSheet()">✕</button>
+      </div>
+      <span class="sheet-tag">${t.tipo}</span>
+      <div class="sheet-title">${t.name}</div>
+      <div class="sheet-rating">${t.zona}</div>
+      <p class="sheet-desc">${t.descripcion}</p>
+      <div class="sheet-meta">${horarioRow}${precioRow}${tipRow}</div>
+      ${img2Row}
+      ${mapsBtn}
+    `);
+  }
+
+  // ─── RENDER: ITINERARIO ─────────────────────────────────────
+  let selectedDay = 0;
+  function renderDayRow(){
+    document.getElementById('day-row').innerHTML = DAYS.map((d,i) => `
+      <button class="day-pill${i===selectedDay?' active':''}" onclick="setDay(${i})">
+        <div class="day-pill-dow">${d.dow}</div>
+        <div class="day-pill-num">${d.num}</div>
+      </button>
+    `).join('');
+  }
+  function setDay(i){ selectedDay = i; renderDayRow(); renderTimeline(); }
+  function renderTimeline(){
+    const day = DAYS[selectedDay];
+    document.getElementById('timeline').innerHTML = day.events.length ? day.events.map((e,i) => `
+      <div class="tl-item" onclick="openEventoSheet(${selectedDay},${i})">
+        <div class="tl-rail"><div class="tl-dot">${iconHTML(e, 24)}</div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          ${e.time?`<div class="tl-time">${e.time}</div>`:''}
+          <div class="tl-name">${e.name}</div>
+        </div>
+      </div>
+    `).join('') : '<p class="tl-empty">Sin eventos este día</p>';
+  }
+
+  // ─── HOME: FEATURED ─────────────────────────────────────────
+  function renderHomeFeatured(){
+    const featured = VISITAS.filter(v => v.valoracion === 10).slice(0,6);
+    document.getElementById('home-featured').innerHTML = featured.map(v => `
+      <div class="feat-card" onclick="openVisitaSheet('${v.id}')">
+        <div class="feat-img">
+          <img src="${v.img}" alt="${v.name}" loading="lazy" />
+          <span class="feat-rating">${stars(v.valoracion)}</span>
+        </div>
+        <div class="feat-body">
+          <div class="feat-name">${v.name}</div>
+          <div class="feat-zone">${v.zona}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ─── DETAIL SHEETS ──────────────────────────────────────────
+  function openSheet(html){
+    document.getElementById('sheet').innerHTML = html;
+    document.getElementById('sheet-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSheet(){
+    document.getElementById('sheet-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function closeSheetBg(e){ if(e.target.id === 'sheet-overlay') closeSheet(); }
+
+  function placeSheetHTML(p, extraTag){
+    const heroHTML = p.img ? `
+      <div class="sheet-hero">
+        <img src="${p.img}" alt="${p.name}" />
+        <div class="sheet-hero-shade"></div>
+        <button class="sheet-close" onclick="closeSheet()">✕</button>
+      </div>` : `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.9rem 0.9rem 0;">
+        <div style="font-size:2.4rem;line-height:1;">${p.emoji||'🍸'}</div>
+        <button class="sheet-close" style="position:static" onclick="closeSheet()">✕</button>
+      </div>`;
+    const horarioRow = p.horario ? `<div class="sheet-meta-row"><span class="sheet-meta-label">Horario</span><span class="sheet-meta-val">${p.horario}</span></div>` : '';
+    const precioRow = `<div class="sheet-meta-row"><span class="sheet-meta-label">Precio</span><span class="sheet-meta-val">${p.precio===0?'Gratis':(p.precio?p.precio+'€ aprox.':'Consultar')}</span></div>`;
+    const reservaRow = p.reserva ? `<div class="sheet-meta-row"><span class="sheet-meta-label">Reserva / Precio</span><span class="sheet-meta-val">${p.reserva}</span></div>` : '';
+    const telRow = p.tel ? `<div class="sheet-meta-row"><span class="sheet-meta-label">Teléfono</span><span class="sheet-meta-val"><a href="tel:${p.tel.replace(/\s/g,'')}">${p.tel}</a></span></div>` : '';
+    const webRow = p.website ? `<div class="sheet-meta-row"><span class="sheet-meta-label">Web</span><span class="sheet-meta-val"><a href="${p.website}" target="_blank">${p.website.replace(/^https?:\/\//,'').replace(/\/$/,'')}</a></span></div>` : '';
+    return `
+      ${heroHTML}
+      <span class="sheet-tag">${extraTag ? extraTag+' · ' : ''}${p.tipo}</span>
+      <div class="sheet-title">${p.name}</div>
+      ${p.valoracion?`<div class="sheet-rating">${stars(p.valoracion)} · ${p.zona}</div>`:`<div class="sheet-rating">${p.zona}</div>`}
+      <p class="sheet-desc">${p.descripcion}</p>
+      <div class="sheet-meta">${horarioRow}${precioRow}${reservaRow}${telRow}${webRow}</div>
+      ${p.maps?`<a class="sheet-cta" href="${p.maps}" target="_blank">Ver en Google Maps</a>`:''}
+    `;
+  }
+
+  function openVisitaSheet(id){
+    openSheet(placeSheetHTML(VISITAS.find(x=>x.id===id)));
+  }
+
+  function openComerSheet(id){
+    openSheet(placeSheetHTML(COMER.find(x=>x.id===id)));
+  }
+
+  const IDIOMA_COLOQUIAL = [
+    ['Hola / adiós', 'Ciao'],
+    ['Por favor', 'Per favore'],
+    ['Gracias', 'Grazie'],
+    ['¿Qué hora es?', 'Che ore sono?'],
+    ['¿Cuánto cuesta?', 'Quanto costa?'],
+    ['Qué caro', 'Costa molto'],
+    ['¿Me hace un descuento?', 'Mi può fare uno sconto?'],
+    ['¿Dónde está…?', 'Dov\'è il…'],
+  ];
+  const IDIOMA_RESTAURANTE = [
+    ['Quiero una cerveza', 'Voglio una birra'],
+    ['Quiero un vino tinto', 'Voglio un vino rosso'],
+    ['Quiero una pizza', 'Voglio una pizza'],
+    ['Quiero una lasaña', 'Vorrei una lasagna'],
+    ['La cuenta, por favor', 'Il conto, per favore'],
+    ['Pago al contado', 'Pago in contanti'],
+    ['Pago con tarjeta', 'Pago con carta'],
+  ];
+  const TRANSPORTE_TIPS = [
+    'Preguntar si se puede pagar con tarjeta',
+    'Pagar siempre con taxímetro',
+    'Evitar pagar con cash',
+  ];
+  const phraseRow = ([es, it]) => `<div style="font-size:0.82rem;color:var(--text);margin-bottom:0.3rem;"><span style="color:var(--text-muted)">${es}:</span> <b>${it}</b></div>`;
+
+  function infoLinkRow(icon, title, sub, onclick){
+    return `
+      <div class="sheet-meta-row" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between;" onclick="${onclick}">
+        <div style="display:flex; align-items:center; gap:0.8rem;">
+          <span style="font-size:1.3rem;">${icon}</span>
+          <div>
+            <div style="font-weight:700; font-size:0.88rem; color:var(--text);">${title}</div>
+            <div style="font-size:0.74rem; color:var(--text-muted);">${sub}</div>
+          </div>
+        </div>
+        <span style="color:var(--text-dim); font-size:1rem;">→</span>
+      </div>`;
+  }
+
+  function sheetSubHeader(backOnclick){
+    return `<div style="display:flex; justify-content:space-between; align-items:center; padding:0.9rem 0.9rem 0;">
+      <button class="sheet-close" style="position:static" onclick="${backOnclick}">← Info</button>
+      <button class="sheet-close" style="position:static" onclick="closeSheet()">✕</button>
+    </div>`;
+  }
+
+  // ─── COMENTARIOS ────────────────────────────────────────────
+  const COMMENT_NAMES = ['Teresa B.', 'Tía Ana', 'Mónica', 'Mayo', 'Carlos', 'Amparo', 'Teresa A', 'Félix'];
+
+  function escapeHTML(s){
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+  function formatCommentDate(fecha){
+    if (!fecha || !fecha.toDate) return '';
+    const d = fecha.toDate();
+    return d.toLocaleDateString('es-ES', {day:'2-digit', month:'short'}) + ' · ' + d.toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
+  }
+  function commentItemHTML(c){
+    return `
+      <div style="background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-md); padding:0.8rem 1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.3rem; gap:0.6rem;">
+          <span style="font-weight:700; font-size:0.85rem; color:var(--orange);">${escapeHTML(c.nombre)}</span>
+          <span style="font-size:0.65rem; color:var(--text-dim); flex-shrink:0;">${formatCommentDate(c.fecha)}</span>
+        </div>
+        <div style="font-size:0.84rem; color:var(--text); line-height:1.5;">${escapeHTML(c.texto)}</div>
+      </div>`;
+  }
+
+  function openComentariosSheet(){
+    const savedName = localStorage.getItem('florencia_user_name') || '';
+    openSheet(`
+      <div style="display:flex; justify-content:flex-end; padding:0.9rem 0.9rem 0;"><button class="sheet-close" style="position:static" onclick="closeSheet()">✕</button></div>
+      <div class="sheet-emoji-head"><img src="img/icons/chat.png" alt="" style="width:44px;height:44px;object-fit:contain;"></div>
+      <div class="sheet-title">Tu opinión también vale</div>
+      <p class="sheet-desc">Elige tu nombre y deja tu comentario sobre el viaje.</p>
+      <div style="padding:0 1.4rem;">
+        <select id="comment-name-select" onchange="onCommentNameChange()" style="width:100%; padding:0.7rem 0.9rem; border-radius:10px; background:var(--surface-2); border:1px solid var(--border-soft); color:var(--text); font-size:0.85rem; margin-bottom:0.8rem;">
+          <option value="">Selecciona tu nombre…</option>
+          ${COMMENT_NAMES.map(n => `<option value="${n}"${n===savedName?' selected':''}>${n}</option>`).join('')}
+        </select>
+        <div id="comment-form-wrap" style="display:${savedName ? 'block' : 'none'};">
+          <textarea id="comment-text" rows="3" placeholder="Escribe tu comentario..." style="width:100%; padding:0.7rem 0.9rem; border-radius:10px; background:var(--surface-2); border:1px solid var(--border-soft); color:var(--text); font-size:0.85rem; resize:vertical; margin-bottom:0.6rem; font-family:inherit;"></textarea>
+          <button class="sheet-cta" style="margin:0 0 1.2rem; display:block; width:100%;" onclick="submitComment()">Publicar</button>
+        </div>
+      </div>
+      <div id="comments-list" style="padding:0 1.4rem 1.6rem; display:flex; flex-direction:column; gap:0.7rem;">
+        <p style="font-size:0.8rem;color:var(--text-dim);">Cargando comentarios…</p>
+      </div>
+    `);
+    loadAndRenderComments();
+  }
+
+  function onCommentNameChange(){
+    const sel = document.getElementById('comment-name-select');
+    const wrap = document.getElementById('comment-form-wrap');
+    if (sel.value) { localStorage.setItem('florencia_user_name', sel.value); wrap.style.display = 'block'; }
+    else wrap.style.display = 'none';
+  }
+
+  function openInfoSheet(){
+    openSheet(`
+      <div style="display:flex; justify-content:flex-end; padding:0.9rem 0.9rem 0;"><button class="sheet-close" style="position:static" onclick="closeSheet()">✕</button></div>
+      <div class="sheet-emoji-head"><img src="img/icons/info.png" alt="" style="width:44px;height:44px;object-fit:contain;"></div>
+      <div class="sheet-title">Info</div>
+      <p class="sheet-desc">Cosas que debes saber antes y durante el viaje.</p>
+      <div class="sheet-meta">
+        ${infoLinkRow('<img src="img/icons/idioma.png" alt="" style="width:26px;height:26px;object-fit:contain;">', 'Idioma', 'Frases útiles en italiano', 'openIdiomaSheet()')}
+        ${infoLinkRow('<img src="img/icons/transportes.png" alt="" style="width:26px;height:26px;object-fit:contain;">', 'Transportes', 'Taxis, pagos y consejos', 'openTransporteSheet()')}
+      </div>
+    `);
+  }
+
+  function openIdiomaSheet(){
+    openSheet(`
+      ${sheetSubHeader('openInfoSheet()')}
+      <div class="sheet-emoji-head"><img src="img/icons/idioma.png" alt="" style="width:44px;height:44px;object-fit:contain;"></div>
+      <div class="sheet-title">Idioma</div>
+      <p class="sheet-desc">Frases útiles en italiano para el día a día.</p>
+      <div class="sheet-meta">
+        <div class="sheet-meta-row" style="display:block;">
+          <span class="sheet-meta-label" style="display:block;margin-bottom:0.5rem;">Coloquial</span>
+          ${IDIOMA_COLOQUIAL.map(phraseRow).join('')}
+        </div>
+        <div class="sheet-meta-row" style="display:block;">
+          <span class="sheet-meta-label" style="display:block;margin-bottom:0.5rem;">En el restaurante</span>
+          ${IDIOMA_RESTAURANTE.map(phraseRow).join('')}
+        </div>
+      </div>
+    `);
+  }
+
+  function openTransporteSheet(){
+    openSheet(`
+      ${sheetSubHeader('openInfoSheet()')}
+      <div class="sheet-emoji-head"><img src="img/icons/transportes.png" alt="" style="width:44px;height:44px;object-fit:contain;"></div>
+      <div class="sheet-title">Transportes</div>
+      <p class="sheet-desc">Consejos para moverte por Florencia.</p>
+      <div class="sheet-meta">
+        <div class="sheet-meta-row" style="display:block;">
+          ${TRANSPORTE_TIPS.map(t => `<div style="font-size:0.84rem;color:var(--text);margin-bottom:0.4rem;">• ${t}</div>`).join('')}
+        </div>
+      </div>
+    `);
+  }
+
+  function findPlace(ref){
+    const source = ref.type === 'comer' ? COMER : VISITAS;
+    return source.find(x => x.id === ref.id);
+  }
+
+  function placeStopCardHTML(place, ref){
+    return `
+      <div class="item-card" onclick="${ref.type === 'comer' ? `openComerSheet('${place.id}')` : `openVisitaSheet('${place.id}')`}">
+        <div class="item-thumb"><img src="${place.img}" alt="${place.name}" loading="lazy" /></div>
+        <div class="item-info">
+          <div class="item-top"><div class="item-name">${place.name}</div>${place.valoracion?`<div class="item-rating">${stars(place.valoracion)}</div>`:''}</div>
+          <div class="item-meta"><span class="item-tag">${place.zona}</span></div>
+        </div>
+      </div>`;
+  }
+
+  function openEventoSheet(dayIdx, evIdx){
+    const day = DAYS[dayIdx];
+    const e = day.events[evIdx];
+    const dayTag = `${day.dow} ${day.num} JUL${e.time?' · '+e.time:''}`;
+
+    if (e.placeRef){
+      const place = findPlace(e.placeRef);
+      if (place) { openSheet(placeSheetHTML(place, dayTag)); return; }
+    }
+
+    const stopsHTML = e.placeRefs ? e.placeRefs.map(ref => {
+      const place = findPlace(ref);
+      return place ? placeStopCardHTML(place, ref) : '';
+    }).join('') : '';
+
+    openSheet(`
+      <div style="display:flex; justify-content:flex-end; padding:0.9rem 0.9rem 0;"><button class="sheet-close" style="position:static" onclick="closeSheet()">✕</button></div>
+      <div class="sheet-emoji-head">${iconHTML(e, 44)}</div>
+      <span class="sheet-tag">${dayTag}</span>
+      <div class="sheet-title">${e.name}</div>
+      <p class="sheet-desc">${e.desc}</p>
+      <div class="sheet-meta">
+        ${e.meta.map(m=>`<div class="sheet-meta-row"><span class="sheet-meta-label">${m.l}</span><span class="sheet-meta-val">${m.v}</span></div>`).join('')}
+      </div>
+      ${stopsHTML ? `
+        <div style="padding:0 1.4rem 0.6rem;"><span class="sheet-meta-label">Sitios de la ruta</span></div>
+        <div class="list" style="padding:0 1.4rem 1.6rem;">${stopsHTML}</div>
+      ` : ''}
+    `);
+  }
+
+  // ─── INFO ACCORDION ─────────────────────────────────────────
+  function toggleInfo(key){
+    const el = document.getElementById('info-'+key);
+    if (!el) return;
+    const isOpen = el.classList.contains('open');
+    el.classList.toggle('open', !isOpen);
+  }
+
+  // ─── TAB NAVIGATION ─────────────────────────────────────────
+  function goTab(tab){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-'+tab).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.tab===tab));
+    window.scrollTo(0,0);
+  }
+
+  // ─── INIT ───────────────────────────────────────────────────
+  renderVisitasChips(); renderVisitasList();
+  renderComerChips(); renderComerList();
+  renderTiendasChips(); renderTiendasList();
+  renderDayRow(); renderTimeline();
+  renderHomeFeatured();
+
+  if ('serviceWorker' in navigator) {
+    // No service worker yet — kept simple, app works fully online.
+  }
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCbzs0ktv9bBKMN04Li0jUACKTcMWzxi4Y",
+    authDomain: "florencia-2026.firebaseapp.com",
+    projectId: "florencia-2026",
+    storageBucket: "florencia-2026.firebasestorage.app",
+    messagingSenderId: "1010082847256",
+    appId: "1:1010082847256:web:5ab996bc42e39da5c6c16d"
+  };
+  const fbApp = initializeApp(firebaseConfig);
+  const db = getFirestore(fbApp);
+  const commentsCol = collection(db, 'comentarios');
+
+  async function fetchComments(max){
+    const q = max ? query(commentsCol, orderBy('fecha', 'desc'), limit(max)) : query(commentsCol, orderBy('fecha', 'desc'));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => d.data());
+  }
+
+  window.loadAndRenderComments = async function(){
+    const list = document.getElementById('comments-list');
+    if (!list) return;
+    try {
+      const comments = await fetchComments();
+      list.innerHTML = comments.length
+        ? comments.map(commentItemHTML).join('')
+        : '<p style="font-size:0.8rem;color:var(--text-dim);">Venga, anímate y comenta</p>';
+    } catch (err) {
+      list.innerHTML = '<p style="font-size:0.8rem;color:var(--text-dim);">No se pudieron cargar los comentarios.</p>';
+    }
+  };
+
+  window.submitComment = async function(){
+    const sel = document.getElementById('comment-name-select');
+    const textEl = document.getElementById('comment-text');
+    const nombre = sel.value;
+    const texto = textEl.value.trim();
+    if (!nombre || !texto) return;
+    textEl.disabled = true;
+    try {
+      await addDoc(commentsCol, { nombre, texto, fecha: serverTimestamp() });
+      textEl.value = '';
+      window.loadAndRenderComments();
+      window.renderHomeCommentsPreview();
+    } finally {
+      textEl.disabled = false;
+    }
+  };
+
+  window.renderHomeCommentsPreview = async function(){
+    const wrap = document.getElementById('home-comments-preview');
+    if (!wrap) return;
+    try {
+      const comments = await fetchComments(2);
+      wrap.innerHTML = comments.length
+        ? comments.map(commentItemHTML).join('')
+        : `<div class="next-card" style="cursor:pointer;" onclick="openComentariosSheet()">
+             <div class="next-emoji"><img src="img/icons/chat.png" alt="" style="width:30px;height:30px;object-fit:contain;"></div>
+             <div class="next-info">
+               <div class="next-name">Venga, anímate y comenta</div>
+             </div>
+             <span class="next-arrow">→</span>
+           </div>`;
+    } catch (err) { /* fallo silencioso en Inicio */ }
+  };
+
+  window.renderHomeCommentsPreview();
+</script>
+</body>
+</html>
